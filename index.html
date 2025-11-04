@@ -19,11 +19,17 @@
       <svg class="logomark" viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M32 56C12 44 6 28 16 20s18 5 16 8 8-12 16-8 4 24-16 36Z" fill="#FF7DA3"/></svg>
       <h2>Hi, my love ♡</h2>
       <p>Type the secret key to enter.</p>
-      <input id="pass" type="password" placeholder="••••••" aria-label="Password"/>
-      <div style="display:flex;gap:8px;justify-content:center;margin-top:10px">
-        <button id="enter" class="btn">Enter</button>
-      </div>
-      <p id="msg" style="color:#b00020;margin-top:8px;min-height:1.2em"></p>
+      <input id="pass" type="password" placeholder="Write our secret code" aria-label="Password"/>
+        <div class="gate-actions">
+          <button id="enter" class="gate-enter" type="button" aria-label="Unlock our private space">
+            <svg class="gate-enter__icon" viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M32 56C12 44 6 28 16 20s18 5 16 8 8-12 16-8 4 24-16 36Z"></path>
+            </svg>
+            <span class="gate-enter__text">Unlock our space</span>
+          </button>
+          <button id="hint" class="gate-hint" type="button">Need a hint?</button>
+        </div>
+        <p id="msg" class="gate-msg" role="status" aria-live="polite"></p>
     </div>
   </div>
 
@@ -103,4 +109,5 @@
   <script src="app.js" defer></script>
 </body>
 </html>
+
 
