@@ -3,43 +3,43 @@
    ============================================ */
 const ENTRIES = [
   {
-    id:"letter_1",
+    id:"letter_grandpa",
     type:"text",
-    title:"An afternoon of laughter",
-    date:"2025-03-19",
-    tags:["laugh","walk","us"],
+    title:"What My Grandpa Would Say About Our First Year Together",
+    date:"2025-04-11",
+    tags:["letter","year-one","grandpa"],
     cover:"https://res.cloudinary.com/dxub5wglw/image/upload/f_auto,q_auto/v1700000000/album/cover_paper.jpg",
-    text:`Do you remember that café where the spoon sounded louder than our laugh?\nI still feel how the sun paused on your hair...`
-  },
-  {
-    id:"photo_1",
-    type:"image",
-    title:"Your smile at the window",
-    date:"2025-04-08",
-    tags:["photo","home"],
-    cover:"https://res.cloudinary.com/dxub5wglw/image/upload/f_auto,q_auto/v1700000000/album/window_smile.jpg",
-    src:"https://res.cloudinary.com/dxub5wglw/image/upload/f_auto,q_auto/v1700000000/album/window_smile.jpg",
-    caption:"I looked at you and knew that instant deserved a frame."
-  },
-  {
-    id:"audio_1",
-    type:"audio",
-    title:"Voice letter — 1",
-    date:"2025-05-14",
-    tags:["audio","letter"],
-    cover:"https://res.cloudinary.com/dxub5wglw/image/upload/f_auto,q_auto/v1700000000/album/tape.jpg",
-    src:"https://res.cloudinary.com/dul66qlpq/video/upload/v1760101534/dona_nobis_pacem___explicacion_3_rmnjay.mp3",
-    notes:"Recorded on my way home; a bit of wind, but it's us."
-  },
-  {
-    id:"video_1",
-    type:"video",
-    title:"Little park clip",
-    date:"2025-06-02",
-    tags:["video","park"],
-    cover:"https://res.cloudinary.com/dxub5wglw/image/upload/f_auto,q_auto/v1700000000/album/park.jpg",
-    src:"https://res.cloudinary.com/demo/video/upload/w_1280,h_720,c_fill/sample.mp4", // replace with your .mp4
-    caption:"Not perfect, but it's us."
+    text:`My grandpa has a very particular way of celebrating good things. I think it is a wise one.
+When something good happens to someone in the family, he is happy, of course -- but his attitude is always: "I already knew that."
+He normalizes good things. He is happy and kind, but he does not overhype anything: he understands that doing things right is the only reasonable path.
+
+And you know what, Sophie? I think something like that applies to us.
+
+Because of course we have shared beautiful moments for a whole year. Of course this is a victory. We should celebrate -- no doubt about it. But we should also understand something more important: this is only the beginning. The good news is only just starting to arrive.
+
+This year we have been brutally limited. We have barely been able to be together virtually, and much less physically. It has been frustrating, I know. There have been nights when we just wanted to be in the same place, breathing the same air.
+
+But listen to me carefully:
+
+- We have already proven that this is stronger than any obstacle. Most relationships fall apart with the kind of chaos we have gone through, right? Even more so if it is long-distance... But we have done a damn good job.
+- The best of us is a huge promise waiting to be fulfilled. The trips we will take together, the mornings when we wake up and will not have to say goodbye, the decisions we will make, the dreams we will chase side by side, the small routines that will become our life... All of that is already there, waiting for us.
+- We built this in "impossible mode." If we managed to keep this alive, to make it grow, to deepen it with every limitation in the universe against us... can you imagine how unstoppable we will be when everything is finally on our side?
+
+If my grandpa were here, he would look at you with that smile of his and say: "I already knew it. Of course they were going to get here. And of course they are going much further."
+
+He is amazing. He would tell us to be patient and trust in each other's love.
+
+And I, Sophie, tell you this:
+
+Take my hand and let us continue this adventure for the rest of our lives.
+Hold my hand tight -- I will never let go.
+I will be by your side because... that is exactly where I want to be.
+
+Anyway, let us just keep going day by day -- sharing life.
+Trying to give each other beautiful, happy things.
+That will be enough.
+
+😘🫂❤️ (the magic emoji trident hahaha)`
   }
 ];
 
@@ -87,13 +87,13 @@ function cardTemplate(item){
   return `
     <article class="card" data-id="${item.id}" data-type="${item.type}" data-tags="${(item.tags||[]).join(',')}">
       <span class="tag">${tagLabel(item.type)}</span>
-      <button class="fav" aria-pressed="${fav}" title="Mark favorite">${fav?'★':'☆'}</button>
+      <button class="fav" aria-pressed="${fav}" title="Mark favorite">${fav?'â˜…':'â˜†'}</button>
       ${ item.type==='image' ? `<img class=\"cover\" src=\"${item.cover||item.src}\" alt=\"\">` :
           item.type==='video' ? `<img class=\"cover\" src=\"${item.cover||''}\" alt=\"\">` :
           `<img class=\"cover\" src=\"${item.cover||''}\" alt=\"\">` }
       <div class="content">
         <h3 class="title">${item.title}</h3>
-        <p class="meta">${fmtDate(item.date)} • ${(item.tags||[]).join(' · ')}</p>
+        <p class="meta">${fmtDate(item.date)} â€¢ ${(item.tags||[]).join(' Â· ')}</p>
       </div>
     </article>`;
 }
@@ -131,17 +131,17 @@ function openModal(item){
 
   if(item.type==='text'){
     modalBody.innerHTML = `<article class="letter"><div class="hand">${nl2br(item.text||'')}</div></article>`;
-    modalFoot.innerHTML = `<span class="meta">${fmtDate(item.date)} • ${(item.tags||[]).join(' · ')}</span>`;
+    modalFoot.innerHTML = `<span class="meta">${fmtDate(item.date)} â€¢ ${(item.tags||[]).join(' Â· ')}</span>`;
   }
   else if(item.type==='image'){
     modalBody.innerHTML = `<figure><img src="${item.src}" alt="${item.caption||''}"><figcaption class="meta" style="margin-top:8px">${item.caption||''}</figcaption></figure>`;
-    modalFoot.innerHTML = `<span class="meta">${fmtDate(item.date)} • ${(item.tags||[]).join(' · ')}</span>`;
+    modalFoot.innerHTML = `<span class="meta">${fmtDate(item.date)} â€¢ ${(item.tags||[]).join(' Â· ')}</span>`;
   }
   else if(item.type==='audio'){
     const id = 'aud_'+item.id;
     modalBody.innerHTML = `
       <div class="player" role="group" aria-label="Audio controls">
-        <button class="p-btn play" aria-label="Play">▶</button>
+        <button class="p-btn play" aria-label="Play">â–¶</button>
         <div class="p-time"><span class="p-cur">0:00</span><div class="pbar"><div class="fill"></div></div><span class="p-dur">0:00</span></div>
       </div>
       <p class="meta" style="margin-top:8px">${item.notes||''}</p>
@@ -177,7 +177,7 @@ function fmt(t){if(!isFinite(t))return'0:00';t=t|0;const m=(t/60)|0,s=(t%60)|0;r
 
 function bindPlayer(audio, root, item){
   const play=$('.play', root), cur=$('.p-cur', root), dur=$('.p-dur', root), bar=$('.pbar', root), fill=$('.fill', root);
-  function sync(){cur.textContent=fmt(audio.currentTime); if(isFinite(audio.duration)) dur.textContent=fmt(audio.duration); fill.style.width=(audio.duration?(audio.currentTime/audio.duration)*100:0)+'%'; play.textContent=audio.paused?'▶':'❚❚'; syncMini();}
+  function sync(){cur.textContent=fmt(audio.currentTime); if(isFinite(audio.duration)) dur.textContent=fmt(audio.duration); fill.style.width=(audio.duration?(audio.currentTime/audio.duration)*100:0)+'%'; play.textContent=audio.paused?'â–¶':'âšâš'; syncMini();}
   function seek(x){const r=bar.getBoundingClientRect(); const pct=Math.min(1,Math.max(0,(x-r.left)/r.width)); if(isFinite(audio.duration)) audio.currentTime=pct*audio.duration; sync();}
   play.addEventListener('click',()=>{ audio.paused?audio.play():audio.pause(); });
   bar.addEventListener('mousedown',e=>seek(e.clientX));
@@ -188,7 +188,7 @@ function bindPlayer(audio, root, item){
 
 function showMini(item){ mini.classList.remove('mini--hidden'); miniTitle.textContent=item.title; syncMini(); }
 function hideMini(){ if(currentAudio){ try{ currentAudio.pause(); currentAudio.currentTime=0; }catch{} } currentAudio=null; mini.classList.add('mini--hidden'); }
-function syncMini(){ if(!currentAudio){ mini.classList.add('mini--hidden'); return; } const d=currentAudio.duration||0; const pct=d?(currentAudio.currentTime/d)*100:0; miniProg.style.width=pct+'%'; miniPlay.textContent = currentAudio.paused?'▶':'❚❚'; }
+function syncMini(){ if(!currentAudio){ mini.classList.add('mini--hidden'); return; } const d=currentAudio.duration||0; const pct=d?(currentAudio.currentTime/d)*100:0; miniProg.style.width=pct+'%'; miniPlay.textContent = currentAudio.paused?'â–¶':'âšâš'; }
 miniPlay.addEventListener('click',()=>{ if(!currentAudio) return; currentAudio.paused?currentAudio.play():currentAudio.pause(); syncMini(); });
 miniClose.addEventListener('click', hideMini);
 miniBar.addEventListener('click', e=>{ if(!currentAudio||!currentAudio.duration) return; const r=miniBar.getBoundingClientRect(); currentAudio.currentTime=((e.clientX-r.left)/r.width)*currentAudio.duration; });
