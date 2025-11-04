@@ -239,7 +239,9 @@ enter.addEventListener('click', ()=>{
     msg.textContent='Wrong key. Try again.'; pass.select();
   }
 });
-hint.addEventListener('click', ()=>{ alert(HINT); });
+if (hint) {
+  hint.addEventListener('click', () => { alert(HINT); });
+}
 pass.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); enter.click(); } });
 
 /* ============================================
