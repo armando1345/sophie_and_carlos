@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Sophie & Carlos</title>
+  <meta name="description" content="A private corner to keep our letters, photos, audios and videos." />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 56C12 44 6 28 16 20s18 5 16 8 8-12 16-8 4 24-16 36Z' fill='%23FF7DA3'/%3E%3C/svg%3E"/>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+
+  <!-- Gate (light privacy only) -->
+  <div id="gate" class="gate" hidden>
+    <div class="gate-card">
+      <svg class="logomark" viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M32 56C12 44 6 28 16 20s18 5 16 8 8-12 16-8 4 24-16 36Z" fill="#FF7DA3"/></svg>
+      <h2>Hi, my love ♡</h2>
+      <p>Type the secret key to enter.</p>
+      <input id="pass" type="password" placeholder="••••••" aria-label="Password"/>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:10px">
+        <button id="enter" class="btn">Enter</button>
+      </div>
+      <p id="msg" style="color:#b00020;margin-top:8px;min-height:1.2em"></p>
+    </div>
+  </div>
+
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg class="logomark" viewBox="0 0 64 64" fill="none" role="img" aria-label="Heart">
+            <path d="M32 56C12 44 6 28 16 20s18 5 16 8 8-12 16-8 4 24-16 36Z" fill="#FF7DA3"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Sophie & Carlos</h1>
+          <p class="subtitle">Welcome to our private album, my princess!</p>
+        </div>
+      </div>
+      <div class="head-right">
+        <span class="chip" id="countChip">0 moments</span>
+      </div>
+    </header>
+
+    <section class="hero" id="hero">
+      <svg class="star" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 5 61 37l33 2-26 19 10 32-28-17-28 17 10-32-26-19 33-2 11-32Z" fill="#FFDDE8"/></svg>
+      <h2>Hi, Sophie. This place is just for us.</h2>
+      <p>I made it because... in the next years we can save our memories here</p>
+      <div class="tools">
+        <div class="search">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-3.5-3.5"/></svg>
+          <input id="q" type="search" placeholder="Search by title or tag…" autocomplete="off" aria-label="Search" />
+        </div>
+        <div class="filters" role="group" aria-label="Filters">
+          <button class="filter" data-type="all" aria-pressed="true">All</button>
+          <button class="filter" data-type="text">Letters</button>
+          <button class="filter" data-type="image">Memories</button>
+          <button class="filter" data-type="audio">Audios</button>
+          <button class="filter" data-type="video">Videos</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="message-block">
+      <h2 class="message-title">A long life is waiting for us...</h2>
+      <p class="message-text">But here we can check what we did in the past!</p>
+    </section>
+
+    <main style="margin-top:18px">
+      <div id="grid" class="grid" aria-live="polite"></div>
+    </main>
+  </div>
+
+  <!-- Overlay / Modal -->
+  <div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 id="modalTitle">—</h3>
+        <div style="display:flex;gap:8px">
+          <button id="favToggle" class="btn" aria-pressed="false">★ Favorite</button>
+          <button id="close" class="btn">Close</button>
+        </div>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-foot" id="modalFoot"></div>
+    </div>
+  </div>
+
+  <!-- Sticky mini player (audio) -->
+  <div id="mini" class="mini mini--hidden" aria-live="polite">
+    <button id="miniPlay" class="p-btn" aria-label="Play">▶</button>
+    <div style="min-width:0">
+      <div id="miniTitle" class="mini-title">—</div>
+      <div id="miniSub" class="mini-sub">Audio</div>
+    </div>
+    <div id="miniBar" class="mini-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><div id="miniProg" class="mini-prog"></div></div>
+    <button id="miniClose" class="p-btn" aria-label="Stop and close">✕</button>
+  </div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
