@@ -205,6 +205,181 @@ nav{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 22px}
   font-weight:700;
 }
 
+@media (max-width:720px){
+  .container{
+    padding:24px 14px 64px;
+  }
+  header{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:16px;
+    margin-bottom:24px;
+  }
+  .brand{
+    gap:14px;
+    align-items:flex-start;
+  }
+  .brand h1{
+    font-size:28px;
+  }
+  .subtitle{
+    font-size:16px;
+    max-width:26ch;
+  }
+  .logo{
+    width:56px;
+    height:56px;
+    border-radius:18px;
+  }
+  .head-right{
+    width:100%;
+    justify-content:flex-start;
+  }
+  .chip{
+    font-size:11px;
+    padding:7px 10px;
+  }
+  .hero{
+    padding:20px;
+    border-radius:var(--r-lg);
+  }
+  .star{
+    width:54px;
+    height:54px;
+    right:16px;
+    top:14px;
+  }
+  .tools{
+    flex-direction:column;
+    align-items:stretch;
+    gap:12px;
+  }
+  .search{
+    min-width:0;
+  }
+  .filters{
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    padding-bottom:4px;
+    margin:0 -6px;
+    padding-inline:6px;
+    scrollbar-width:thin;
+    scrollbar-color:rgba(48,38,58,.18) transparent;
+  }
+  .filters::-webkit-scrollbar{
+    height:6px;
+  }
+  .filters::-webkit-scrollbar-thumb{
+    background:rgba(48,38,58,.18);
+    border-radius:999px;
+  }
+  .filter{
+    flex:0 0 auto;
+  }
+  .message-block{
+    margin-top:20px;
+    padding:18px;
+  }
+  .grid{
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:14px;
+  }
+  .card{
+    border-radius:22px;
+  }
+  .modal{
+    border-radius:18px;
+  }
+  .mini{
+    left:10px;
+    right:10px;
+  }
+}
+
+@media (max-width:520px){
+  header{
+    gap:18px;
+  }
+  .brand h1{
+    font-size:26px;
+  }
+  .subtitle{
+    font-size:15px;
+  }
+  .chip{
+    font-size:10px;
+  }
+  .hero h2{
+    font-size:24px;
+  }
+  .hero p{
+    font-size:15px;
+  }
+  .message-title{
+    font-size:22px;
+  }
+  .message-text{
+    font-size:15px;
+  }
+  .card{
+    min-height:0;
+  }
+  .gate-card{
+    padding:22px 18px 26px;
+    border-radius:20px;
+  }
+  .gate h2{
+    font-size:24px;
+  }
+  .gate p{
+    font-size:15px;
+  }
+  .gate-enter{
+    padding:14px 18px;
+    gap:10px;
+    box-shadow:0 16px 36px rgba(255,125,163,.28);
+  }
+  .gate-enter__icon{
+    width:20px;
+    height:20px;
+  }
+  .gate-enter__text{
+    font-size:13px;
+  }
+  .gate-hint{
+    font-size:13px;
+  }
+  .gate-msg{
+    font-size:13px;
+  }
+}
+
+@media (max-width:400px){
+  .hero{
+    padding:18px;
+  }
+  .star{
+    display:none;
+  }
+  .filters{
+    gap:6px;
+  }
+  .filter{
+    padding:7px 10px;
+    font-size:12px;
+  }
+  .gate-card{
+    padding:22px 16px 26px;
+  }
+  .gate-enter{
+    font-size:12px;
+    letter-spacing:.1em;
+  }
+  .gate-enter__text{
+    font-size:12px;
+  }
+}
+
 @media (min-width:520px){
   .gate-actions{
     flex-direction:row;
