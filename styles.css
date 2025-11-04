@@ -256,6 +256,16 @@ nav{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 22px}
   }
   .search{
     min-width:0;
+    width:100%;
+  }
+  .search input{
+    padding:16px 18px 16px 48px;
+    font-size:16px;
+  }
+  .search .ico{
+    width:20px;
+    height:20px;
+    left:16px;
   }
   .filters{
     flex-wrap:nowrap;
@@ -265,6 +275,7 @@ nav{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 22px}
     padding-inline:6px;
     scrollbar-width:thin;
     scrollbar-color:rgba(48,38,58,.18) transparent;
+    -webkit-overflow-scrolling:touch;
   }
   .filters::-webkit-scrollbar{
     height:6px;
