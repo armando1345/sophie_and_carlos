@@ -40,7 +40,7 @@ Anyway, let's just keep going day by day - sharing life.
 Trying to give each other beautiful, happy things.
 That will be enough.
 
-(Consider this the magic emoji trident hahaha)`
+(and here is magic emoji trident hahaha: 😘🫂❤️)`
   }
 ];
 
@@ -478,3 +478,4 @@ document.addEventListener("DOMContentLoaded", () => {
   filterList();
   showGate();
 });
+
