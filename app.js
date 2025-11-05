@@ -70,14 +70,9 @@ function fmtDate(iso) {
   return Number.isNaN(date.getTime()) ? iso : dateFormatter.format(date);
 }
 
-// Favorites
-const FAVKEY = "sophie_favs";
-const getFavs = () => new Set(JSON.parse(localStorage.getItem(FAVKEY) || "[]"));
-const setFavs = (set) => localStorage.setItem(FAVKEY, JSON.stringify([...set]));
-
 // Gate (light privacy).
 const SECRET_PLAIN = "SMDD+CARM";
-const HINT = 'It has a "+" and our initials.';
+const HINT = "Think about our initials with a '+' and try again";
 
 function hashLike(value) {
   let hash = 0;
@@ -88,17 +83,30 @@ function hashLike(value) {
   return (hash >>> 0).toString(16).slice(0, 16);
 }
 
-function nl2br(text) {
-  return String(text).replace(/\r\n|\r|\n/g, "<br>");
+
+function letterBodyText(item) {
+  const safeTitle = String(item.title || "").trim().toLowerCase();
+  const lines = String(item.text || "").split("\n").map((line) => line.trimEnd());
+  if (lines.length && lines[0].trim().toLowerCase() === safeTitle) {
+    lines.shift();
+  }
+  return lines.join("\n").trim();
 }
 
-function excerpt(text, max = 180) {
-  const clean = String(text || "").replace(/\s+/g, " ").trim();
-  if (!clean) return "";
-  if (clean.length <= max) return clean;
-  return `${clean.slice(0, Math.max(0, max - 3)).trimEnd()}...`;
+function letterBodyMarkup(item) {
+  const body = letterBodyText(item);
+  if (!body) return "";
+  const blocks = body.split(/\n{2,}/).map((block) => block.trim()).filter(Boolean);
+  return blocks.map((block) => {
+    const lines = block.split(/\n/).map((line) => line.trim()).filter(Boolean);
+    const isList = lines.every((line) => /^[-\u2022]/.test(line));
+    if (isList) {
+      const items = lines.map((line) => `<li>${line.replace(/^[-\u2022]\s*/, "")}</li>`).join("");
+      return `<ul class="letter-list">${items}</ul>`;
+    }
+    return `<p>${lines.join("<br>")}</p>`;
+  }).join("");
 }
-
 function createTagPills(tags = []) {
   if (!tags.length) return "";
   return `<div class="card-tags">${tags.map((tag) => `<span class="pill">${tag}</span>`).join("")}</div>`;
@@ -115,30 +123,24 @@ const grid = $("#grid");
 const q = $("#q");
 const countChip = $("#countChip");
 
-function buildTextCard(item, favButton, tagsMarkup) {
+function buildTextCard(item, tagsMarkup) {
   const typeLabel = tagLabel(item.type);
   const safeTitle = String(item.title || "");
   const ariaTitle = safeTitle.replace(/"/g, "&quot;");
-  const lines = (item.text || "").split("\n").map((line) => line.trim()).filter(Boolean);
-  const titleKey = safeTitle.trim().toLowerCase();
-  const body = lines.length && lines[0].toLowerCase() === titleKey
-    ? lines.slice(1).join(" ")
-    : lines.join(" ");
-  const preview = excerpt(body, 220);
-  const dateLabel = fmtDate(item.date);
+  const coverSrc = item.cover || "";
   const dateISO = item.date || "";
+  const dateLabel = item.date ? fmtDate(item.date) : "";
 
   return `
     <article class="card card--text" data-id="${item.id}" data-type="${item.type}" data-tags="${(item.tags || []).join(",")}" tabindex="0" role="button" aria-label="Read letter ${ariaTitle}">
       <span class="tag">${typeLabel}</span>
-      ${favButton}
       <div class="content">
+        ${coverSrc ? `<figure class="card-hero"><img src="${coverSrc}" alt="" loading="lazy"></figure>` : ""}
         <div class="card-head">
-          <span class="card-head__label">Private letter</span>
-          <time class="card-head__date" datetime="${dateISO}">${dateLabel}</time>
+          <span class="card-head__label">Letter</span>
         </div>
         <h3 class="title">${safeTitle}</h3>
-        <p class="excerpt">${preview}</p>
+        ${dateLabel ? `<div class="card-meta"><time datetime="${dateISO}">${dateLabel}</time></div>` : ""}
         <div class="card-foot">
           ${tagsMarkup}
           <span class="cta" aria-hidden="true">Read letter<span class="cta-icon">&#8599;</span></span>
@@ -148,17 +150,12 @@ function buildTextCard(item, favButton, tagsMarkup) {
 }
 
 function cardTemplate(item) {
-  const favs = getFavs();
-  const fav = favs.has(item.id);
-  const favLabel = fav ? "Remove from favorites" : "Add to favorites";
-  const favIcon = fav ? "&#9733;" : "&#9734;";
-  const favButton = `<button class="fav" type="button" aria-pressed="${fav}" aria-label="${favLabel}" title="${favLabel}">${favIcon}</button>`;
   const tagsMarkup = createTagPills(item.tags);
   const safeTitle = String(item.title || "");
   const ariaTitle = safeTitle.replace(/"/g, "&quot;");
 
   if (item.type === "text") {
-    return buildTextCard(item, favButton, tagsMarkup);
+    return buildTextCard(item, tagsMarkup);
   }
 
   const typeLabel = tagLabel(item.type);
@@ -169,7 +166,6 @@ function cardTemplate(item) {
   return `
     <article class="card" data-id="${item.id}" data-type="${item.type}" data-tags="${(item.tags || []).join(",")}" tabindex="0" role="button" aria-label="Open ${typeLabelLower} ${ariaTitle}">
       <span class="tag">${typeLabel}</span>
-      ${favButton}
       <img class="cover" src="${coverSrc}" alt="">
       <div class="content">
         <h3 class="title">${safeTitle}</h3>
@@ -206,23 +202,6 @@ function findEntry(id) {
 }
 
 grid.addEventListener("click", (event) => {
-  const favBtn = event.target.closest(".fav");
-  if (favBtn) {
-    event.stopPropagation();
-    const card = favBtn.closest(".card");
-    if (!card) return;
-    const id = card.dataset.id;
-    const favs = getFavs();
-    if (favs.has(id)) {
-      favs.delete(id);
-    } else {
-      favs.add(id);
-    }
-    setFavs(favs);
-    filterList();
-    return;
-  }
-
   const card = event.target.closest(".card");
   if (!card) return;
   const item = findEntry(card.dataset.id);
@@ -234,7 +213,6 @@ grid.addEventListener("click", (event) => {
 grid.addEventListener("keydown", (event) => {
   const key = event.key;
   if (key !== "Enter" && key !== " " && key !== "Spacebar") return;
-  if (event.target.closest(".fav")) return;
   const card = event.target.closest(".card");
   if (!card) return;
   const item = findEntry(card.dataset.id);
@@ -251,37 +229,24 @@ const overlay = $("#overlay");
 const modalTitle = $("#modalTitle");
 const modalBody = $("#modalBody");
 const modalFoot = $("#modalFoot");
-const favToggle = $("#favToggle");
-
-function setFavToggle(isFav) {
-  const label = isFav ? "Remove from favorites" : "Add to favorites";
-  favToggle.textContent = label;
-  favToggle.setAttribute("aria-pressed", String(isFav));
-}
-
 function openModal(item) {
   modalTitle.textContent = item.title;
-  const favSet = getFavs();
-  const isFav = favSet.has(item.id);
-  setFavToggle(isFav);
-
-  favToggle.onclick = () => {
-    const current = getFavs();
-    if (current.has(item.id)) {
-      current.delete(item.id);
-    } else {
-      current.add(item.id);
-    }
-    setFavs(current);
-    setFavToggle(current.has(item.id));
-    filterList();
-  };
 
   const metaInfo = `${fmtDate(item.date)}${item.tags && item.tags.length ? ` &bull; ${(item.tags || []).join(" &bull; ")}` : ""}`;
 
   if (item.type === "text") {
-    modalBody.innerHTML = `<article class="letter"><div class="hand">${nl2br(item.text || "")}</div></article>`;
-    modalFoot.innerHTML = metaInfo ? `<span class="meta">${metaInfo}</span>` : "";
+    const dateISO = item.date || "";
+    const dateLabel = item.date ? fmtDate(item.date) : "";
+    const tagsMarkup = createTagPills(item.tags);
+    modalBody.innerHTML = `
+      <article class="letter">
+        <header class="letter-header">
+          <span class="letter-label">Letter</span>
+          ${dateLabel ? `<time class="letter-date" datetime="${dateISO}">${dateLabel}</time>` : ""}
+        </header>
+        <div class="letter-body">${letterBodyMarkup(item)}</div>
+      </article>`;
+    modalFoot.innerHTML = tagsMarkup ? `<div class="letter-tags">${tagsMarkup}</div>` : "";
   } else if (item.type === "image") {
     modalBody.innerHTML = `<figure><img src="${item.src}" alt="${item.caption || ""}"><figcaption class="meta" style="margin-top:8px">${item.caption || ""}</figcaption></figure>`;
     modalFoot.innerHTML = metaInfo ? `<span class="meta">${metaInfo}</span>` : "";
@@ -454,12 +419,24 @@ const enter = $("#enter");
 const hint = $("#hint");
 const msg = $("#msg");
 
+function setGateMessage(text = "", variant = "info") {
+  if (!msg) return;
+  msg.textContent = text;
+  msg.classList.remove("gate-msg--error", "gate-msg--hint");
+  if (!text) return;
+  if (variant === "error") {
+    msg.classList.add("gate-msg--error");
+  } else if (variant === "hint") {
+    msg.classList.add("gate-msg--hint");
+  }
+}
+
 function showGate() {
   if (!gate) return;
   gate.hidden = false;
   gate.removeAttribute("hidden");
   gate.style.display = "";
-  if (msg) msg.textContent = "";
+  setGateMessage("");
   if (pass) pass.value = "";
   if (pass) pass.focus();
 }
@@ -467,23 +444,26 @@ function showGate() {
 enter.addEventListener("click", () => {
   const input = pass.value.trim();
   if (!input) {
-    msg.textContent = "Type the key.";
+    setGateMessage("Type the key.", "error");
     return;
   }
   if (hashLike(input) === hashLike(SECRET_PLAIN)) {
     gate.hidden = true;
     gate.setAttribute("hidden", "");
     pass.value = "";
-    msg.textContent = "";
+    setGateMessage("");
   } else {
-    msg.textContent = "Wrong key. Try again.";
+    setGateMessage("Wrong key. Try again.", "error");
     pass.select();
   }
 });
 
 if (hint) {
   hint.addEventListener("click", () => {
-    alert(HINT);
+    setGateMessage(HINT, "hint");
+    if (msg) {
+      msg.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
   });
 }
 
