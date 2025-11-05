@@ -40,7 +40,7 @@ Anyway, let's just keep going day by day - sharing life.
 Trying to give each other beautiful, happy things.
 That will be enough.
 
-(and here is the magic emoji trident hehe: 😘🫂❤️)`
+(and here is the magic emoji trident hahaha: 😘🫂❤️)`
   }
 ];
 
@@ -226,9 +226,12 @@ grid.addEventListener("keydown", (event) => {
    MODAL + CONTENT TYPES
    ============================================ */
 const overlay = $("#overlay");
+const modal = $(".modal", overlay);
 const modalTitle = $("#modalTitle");
 const modalBody = $("#modalBody");
 const modalFoot = $("#modalFoot");
+const closeButton = $("#close");
+
 function openModal(item) {
   modalTitle.textContent = item.title;
 
@@ -276,11 +279,34 @@ function openModal(item) {
   }
 
   overlay.classList.add("show");
+  document.body.classList.add("modal-open");
+  if (modal) {
+    modal.scrollTop = 0;
+    requestAnimationFrame(() => {
+      modal.scrollTop = 0;
+    });
+  }
 }
 
-$("#close").addEventListener("click", () => overlay.classList.remove("show"));
+function closeModal() {
+  overlay.classList.remove("show");
+  document.body.classList.remove("modal-open");
+}
+
+if (closeButton) {
+  closeButton.addEventListener("click", closeModal);
+}
+
 overlay.addEventListener("click", (event) => {
-  if (event.target === overlay) overlay.classList.remove("show");
+  if (event.target === overlay) {
+    closeModal();
+  }
+});
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && overlay.classList.contains("show")) {
+    closeModal();
+  }
 });
 
 /* ============================================
@@ -478,6 +504,3 @@ document.addEventListener("DOMContentLoaded", () => {
   filterList();
   showGate();
 });
-
-
-
