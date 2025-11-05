@@ -177,7 +177,7 @@ function cardTemplate(item) {
 function render(list) {
   grid.innerHTML = list.sort(byNew).map(cardTemplate).join("");
   const count = list.length;
-  countChip.textContent = `${count} ${count === 1 ? "moment" : "moments"}`;
+  countChip.textContent = `${count} ${count === 1 ? "memorie" : "memories"}`;
 }
 
 function filterList() {
@@ -478,4 +478,5 @@ document.addEventListener("DOMContentLoaded", () => {
   filterList();
   showGate();
 });
+
 
