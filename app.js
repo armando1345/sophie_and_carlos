@@ -40,7 +40,7 @@ Anyway, let's just keep going day by day - sharing life.
 Trying to give each other beautiful, happy things.
 That will be enough.
 
-(and here is magic emoji trident hahaha: 😘🫂❤️)`
+(and here is the magic emoji trident hehe: 😘🫂❤️)`
   }
 ];
 
@@ -177,7 +177,7 @@ function cardTemplate(item) {
 function render(list) {
   grid.innerHTML = list.sort(byNew).map(cardTemplate).join("");
   const count = list.length;
-  countChip.textContent = `${count} ${count === 1 ? "memorie" : "memories"}`;
+  countChip.textContent = `${count} ${count === 1 ? "memory" : "memories"}`;
 }
 
 function filterList() {
@@ -478,5 +478,6 @@ document.addEventListener("DOMContentLoaded", () => {
   filterList();
   showGate();
 });
+
 
 
