@@ -18,9 +18,9 @@
       <svg class="logomark" viewBox="0 0 64 64" fill="none" aria-hidden="true">
         <path d="M32 56C12 44 6 28 16 20s18 5 16 8 8-12 16-8 4 24-16 36Z" fill="#FF7DA3"/>
       </svg>
-      <h2>Hi, my love</h2>
-      <p>Type the secret key to enter.</p>
-      <input id="pass" type="password" placeholder="Write our secret code" aria-label="Password"/>
+      <h2>Our album</h2>
+      <p>Enter our shared key to open it.</p>
+      <input id="pass" type="password" placeholder="Enter our shared key" aria-label="Password"/>
       <div class="gate-actions">
         <button id="enter" class="gate-enter" type="button" aria-label="Unlock our private space">
           <svg class="gate-enter__icon" viewBox="0 0 64 64" aria-hidden="true">
@@ -28,7 +28,6 @@
           </svg>
           <span class="gate-enter__text">Unlock our space</span>
         </button>
-        <button id="hint" class="gate-hint" type="button">Need a hint?</button>
       </div>
       <p id="msg" class="gate-msg" role="status" aria-live="polite"></p>
     </div>
@@ -47,7 +46,7 @@
         </div>
       </div>
       <div class="head-right">
-        <span class="chip" id="countChip">0 moments</span>
+        <span class="chip" id="countChip">0 memories</span>
       </div>
     </header>
 
@@ -55,29 +54,32 @@
       <svg class="star" viewBox="0 0 100 100" aria-hidden="true">
         <path d="M50 5 61 37l33 2-26 19 10 32-28-17-28 17 10-32-26-19 33-2 11-32Z" fill="#FFDDE8"/>
       </svg>
-      <h2>Hi, Sophie. This place is just for us.</h2>
-      <p>Our private collection of memories!</p>
+      <h2>Our album lives here</h2>
+      <p>Some of our memories in this cozy place</p>
       <div class="tools">
         <div class="search">
           <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="11" cy="11" r="8"/>
             <path d="m21 21-3.5-3.5"/>
           </svg>
-          <input id="q" type="search" placeholder="Search by title or tag..." autocomplete="off" aria-label="Search" />
+          <input id="q" type="search" placeholder="Search by title, tag, or words inside..." autocomplete="off" aria-label="Search" />
         </div>
         <div class="filters" role="group" aria-label="Filters">
           <button class="filter" data-type="all" aria-pressed="true">All</button>
           <button class="filter" data-type="text">Letters</button>
-          <button class="filter" data-type="image">Memories</button>
+          <button class="filter" data-type="image">Images</button>
           <button class="filter" data-type="audio">Audio</button>
           <button class="filter" data-type="video">Videos</button>
+        </div>
+        <div class="tool-actions">
+          <button id="randomBtn" class="btn btn-ghost" type="button">Surprise us</button>
         </div>
       </div>
     </section>
 
     <section class="message-block">
-      <h2 class="message-title">A long life is waiting for us...</h2>
-      <p class="message-text">But here we can check what we did in the past!</p>
+      <h2 class="message-title">Our story keeps growing</h2>
+      <p class="message-text">One day we will show these memories to our kids &#10084;&#65039;</p>
     </section>
 
     <main style="margin-top:18px">
@@ -87,6 +89,7 @@
 
   <div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal">
+      <div id="readProgress" class="read-progress" aria-hidden="true"></div>
       <div class="modal-head">
         <h3 id="modalTitle"></h3>
         <div style="display:flex;gap:8px">
@@ -112,3 +115,4 @@
   <script src="app.js" defer></script>
 </body>
 </html>
+
