@@ -49,10 +49,42 @@ That will be enough.
    ============================================ */
 const TYPE_LABELS = {
   text: "LETTER",
-  image: "MEMORY",
+  image: "IMAGE",
   audio: "AUDIO",
   video: "VIDEO"
 };
+
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function spawnHearts({ x, y, count = 16 }) {
+  if (prefersReducedMotion) return;
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < count; i += 1) {
+    const span = document.createElement("span");
+    span.className = "particle-heart";
+    const size = 18 + Math.random() * 12;
+    span.style.width = `${size}px`;
+    span.style.height = `${size}px`;
+    const dx = (Math.random() - 0.5) * 120;
+    const dy = -100 - Math.random() * 120;
+    const duration = 1100 + Math.random() * 700;
+    const delay = Math.random() * 80;
+    span.animate([
+      { transform: "translate(0,0) scale(1)", opacity: 0.95 },
+      { transform: `translate(${dx}px, ${dy}px) scale(${0.8 + Math.random() * 0.4})`, opacity: 0 }
+    ], {
+      duration,
+      delay,
+      easing: "cubic-bezier(.22,1,.36,1)",
+      fill: "forwards"
+    });
+    span.style.left = `${x}px`;
+    span.style.top = `${y}px`;
+    frag.appendChild(span);
+    setTimeout(() => span.remove(), duration + delay + 40);
+  }
+  document.body.appendChild(frag);
+}
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -72,7 +104,6 @@ function fmtDate(iso) {
 
 // Gate (light privacy).
 const SECRET_PLAIN = "SMDD+CARM";
-const HINT = "Think about our initials with a '+' and try again";
 
 function hashLike(value) {
   let hash = 0;
@@ -109,7 +140,7 @@ function letterBodyMarkup(item) {
 }
 function createTagPills(tags = []) {
   if (!tags.length) return "";
-  return `<div class="card-tags">${tags.map((tag) => `<span class="pill">${tag}</span>`).join("")}</div>`;
+  return `<div class="card-tags">${tags.map((tag) => `<button type="button" class="pill pill--tag" data-tag="${tag}">${tag}</button>`).join("")}</div>`;
 }
 
 function tagLabel(type) {
@@ -122,6 +153,8 @@ function tagLabel(type) {
 const grid = $("#grid");
 const q = $("#q");
 const countChip = $("#countChip");
+const hero = $("#hero");
+const readProgress = $("#readProgress");
 
 function buildTextCard(item, tagsMarkup) {
   const typeLabel = tagLabel(item.type);
@@ -175,9 +208,29 @@ function cardTemplate(item) {
 }
 
 function render(list) {
-  grid.innerHTML = list.sort(byNew).map(cardTemplate).join("");
-  const count = list.length;
+  const sorted = [...list].sort(byNew);
+  const count = sorted.length;
   countChip.textContent = `${count} ${count === 1 ? "memory" : "memories"}`;
+  if (!count) {
+    grid.innerHTML = `
+      <div class="empty">
+        <div class="empty__body">
+          <p class="empty__title">We still don’t have memories in this section</p>
+          <p class="empty__text">Let’s make some!</p>
+          <div class="empty__actions">
+            <button id="resetFilters" class="btn">Clear search & filters</button>
+            <button id="surpriseGrid" class="btn btn-ghost">Surprise us</button>
+          </div>
+        </div>
+      </div>`;
+    return;
+  }
+  grid.innerHTML = sorted.map(cardTemplate).join("");
+  $$(".card", grid).forEach((card) => {
+    card.classList.add("card-pop");
+    card.style.animationDelay = `${Math.random() * 0.08 + 0.02}s`;
+    setTimeout(() => card.classList.remove("card-pop"), 260);
+  });
 }
 
 function filterList() {
@@ -202,23 +255,47 @@ function findEntry(id) {
 }
 
 grid.addEventListener("click", (event) => {
+  if (event.target.id === "resetFilters") {
+    q.value = "";
+    $$(".filter").forEach((button) => button.setAttribute("aria-pressed", button.dataset.type === "all" ? "true" : "false"));
+    filterList();
+    return;
+  }
+  if (event.target.id === "surpriseGrid") {
+    surpriseUs();
+    return;
+  }
+  const tagButton = event.target.closest(".pill--tag");
+  if (tagButton) {
+    event.stopImmediatePropagation();
+    applyTagFilter(tagButton.dataset.tag);
+    return;
+  }
   const card = event.target.closest(".card");
   if (!card) return;
   const item = findEntry(card.dataset.id);
   if (item) {
-    openModal(item);
+    const rect = card.getBoundingClientRect();
+    openModal(item, { origin: { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 } });
   }
 });
 
 grid.addEventListener("keydown", (event) => {
   const key = event.key;
   if (key !== "Enter" && key !== " " && key !== "Spacebar") return;
+  const tagButton = event.target.closest(".pill--tag");
+  if (tagButton) {
+    event.preventDefault();
+    applyTagFilter(tagButton.dataset.tag);
+    return;
+  }
   const card = event.target.closest(".card");
   if (!card) return;
   const item = findEntry(card.dataset.id);
   if (item) {
     event.preventDefault();
-    openModal(item);
+    const rect = card.getBoundingClientRect();
+    openModal(item, { origin: { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 } });
   }
 });
 
@@ -231,9 +308,32 @@ const modalTitle = $("#modalTitle");
 const modalBody = $("#modalBody");
 const modalFoot = $("#modalFoot");
 const closeButton = $("#close");
+const FOCUSABLE_SELECTOR = "button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])";
+let lastFocusedElement = null;
+let isLetterOpen = false;
 
-function openModal(item) {
+function updateReadProgress() {
+  if (!modal || !readProgress) return;
+  if (!isLetterOpen) {
+    readProgress.style.setProperty("--progress", "0%");
+    readProgress.style.setProperty("opacity", "0");
+    return;
+  }
+  const max = modal.scrollHeight - modal.clientHeight;
+  const pct = max > 0 ? (modal.scrollTop / max) * 100 : 0;
+  readProgress.style.setProperty("--progress", `${pct}%`);
+  readProgress.style.setProperty("opacity", pct > 0 ? "1" : "0.9");
+}
+
+function openModal(item, options = {}) {
+  const origin = options.origin || null;
+  lastFocusedElement = document.activeElement;
   modalTitle.textContent = item.title;
+  isLetterOpen = item.type === "text";
+  if (readProgress) {
+    readProgress.style.setProperty("opacity", isLetterOpen ? "1" : "0");
+    readProgress.style.setProperty("--progress", "0%");
+  }
 
   const metaInfo = `${fmtDate(item.date)}${item.tags && item.tags.length ? ` &bull; ${(item.tags || []).join(" &bull; ")}` : ""}`;
 
@@ -251,7 +351,7 @@ function openModal(item) {
       </article>`;
     modalFoot.innerHTML = tagsMarkup ? `<div class="letter-tags">${tagsMarkup}</div>` : "";
   } else if (item.type === "image") {
-    modalBody.innerHTML = `<figure><img src="${item.src}" alt="${item.caption || ""}"><figcaption class="meta" style="margin-top:8px">${item.caption || ""}</figcaption></figure>`;
+    modalBody.innerHTML = `<figure class="media-frame image-frame"><img src="${item.src}" alt="${item.caption || ""}"></figure><figcaption class="meta" style="margin-top:8px">${item.caption || ""}</figcaption>`;
     modalFoot.innerHTML = metaInfo ? `<span class="meta">${metaInfo}</span>` : "";
   } else if (item.type === "audio") {
     const id = `aud_${item.id}`;
@@ -266,11 +366,14 @@ function openModal(item) {
       </div>
       <p class="meta" style="margin-top:8px">${item.notes || ""}</p>
       <audio id="${id}" preload="metadata" src="${item.src}"></audio>`;
-    modalFoot.innerHTML = `${metaInfo ? `<span class="meta">${metaInfo}</span>` : ""}<a class="btn" href="${item.src}" download>Download</a>`;
+      modalFoot.innerHTML = `${metaInfo ? `<span class="meta">${metaInfo}</span>` : ""}<a class="btn" href="${item.src}" download>Download</a>`;
     bindPlayer($(`#${id}`), $(".player", modalBody), item);
   } else if (item.type === "video") {
     modalBody.innerHTML = `
-      <video controls playsinline style="width:100%;border-radius:18px;border:1px solid rgba(48,38,58,.12);box-shadow:var(--shadow)" src="${item.src}"></video>
+      <div class="media-frame video-frame">
+        <video controls playsinline src="${item.src}"></video>
+        <span class="video-sparkle" aria-hidden="true"></span>
+      </div>
       <p class="meta" style="margin-top:8px">${item.caption || ""}</p>`;
     modalFoot.innerHTML = `${metaInfo ? `<span class="meta">${metaInfo}</span>` : ""}<a class="btn" href="${item.src}" download>Download</a>`;
   } else {
@@ -280,17 +383,34 @@ function openModal(item) {
 
   overlay.classList.add("show");
   document.body.classList.add("modal-open");
+  if (readProgress) {
+    readProgress.style.setProperty("--progress", isLetterOpen ? "0%" : "0%");
+  }
   if (modal) {
     modal.scrollTop = 0;
     requestAnimationFrame(() => {
       modal.scrollTop = 0;
+      if (closeButton) {
+        closeButton.focus();
+      }
+      updateReadProgress();
     });
+  }
+  if (origin) {
+    spawnHearts({ x: origin.x, y: origin.y, count: 10 });
   }
 }
 
 function closeModal() {
   overlay.classList.remove("show");
   document.body.classList.remove("modal-open");
+  if (readProgress) {
+    readProgress.style.setProperty("--progress", "0%");
+    readProgress.style.setProperty("opacity", "0");
+  }
+  if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
+    lastFocusedElement.focus();
+  }
 }
 
 if (closeButton) {
@@ -300,6 +420,27 @@ if (closeButton) {
 overlay.addEventListener("click", (event) => {
   if (event.target === overlay) {
     closeModal();
+  }
+});
+
+if (modal) {
+  modal.addEventListener("scroll", () => {
+    updateReadProgress();
+  });
+}
+
+overlay.addEventListener("keydown", (event) => {
+  if (event.key !== "Tab" || !overlay.classList.contains("show")) return;
+  const focusables = Array.from(overlay.querySelectorAll(FOCUSABLE_SELECTOR)).filter((el) => !el.disabled && el.offsetParent !== null);
+  if (!focusables.length) return;
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
   }
 });
 
@@ -372,10 +513,15 @@ function bindPlayer(audio, root, item) {
   audio.addEventListener("play", () => {
     currentAudio = audio;
     showMini(item);
+    play.classList.add("is-playing");
     sync();
   });
-  audio.addEventListener("pause", sync);
+  audio.addEventListener("pause", () => {
+    play.classList.remove("is-playing");
+    sync();
+  });
   audio.addEventListener("ended", () => {
+    play.classList.remove("is-playing");
     hideMini();
   });
 
@@ -427,6 +573,46 @@ miniBar.addEventListener("click", (event) => {
 });
 
 /* ============================================
+   TAG SHORTCUTS + SURPRISE
+   ============================================ */
+function applyTagFilter(tag) {
+  if (!tag) return;
+  q.value = tag;
+  $$(".filter").forEach((button) => button.setAttribute("aria-pressed", button.dataset.type === "all" ? "true" : "false"));
+  filterList();
+  if (hero) {
+    hero.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  closeModal();
+}
+
+function randomEntry() {
+  if (!ENTRIES.length) return null;
+  const idx = Math.floor(Math.random() * ENTRIES.length);
+  return ENTRIES[idx];
+}
+
+function surpriseUs() {
+  const pick = randomEntry();
+  if (pick) {
+    const origin = { x: window.innerWidth / 2, y: window.innerHeight - 40 };
+    openModal(pick, { origin });
+  }
+}
+
+modalFoot.addEventListener("click", (event) => {
+  const tagButton = event.target.closest(".pill--tag");
+  if (tagButton) {
+    applyTagFilter(tagButton.dataset.tag);
+  }
+});
+
+const randomBtn = $("#randomBtn");
+if (randomBtn) {
+  randomBtn.addEventListener("click", surpriseUs);
+}
+
+/* ============================================
    SEARCH + FILTERS
    ============================================ */
 q.addEventListener("input", filterList);
@@ -442,18 +628,15 @@ $$(".filter").forEach((button) => button.addEventListener("click", () => {
 const gate = $("#gate");
 const pass = $("#pass");
 const enter = $("#enter");
-const hint = $("#hint");
 const msg = $("#msg");
 
 function setGateMessage(text = "", variant = "info") {
   if (!msg) return;
   msg.textContent = text;
-  msg.classList.remove("gate-msg--error", "gate-msg--hint");
+  msg.classList.remove("gate-msg--error");
   if (!text) return;
   if (variant === "error") {
     msg.classList.add("gate-msg--error");
-  } else if (variant === "hint") {
-    msg.classList.add("gate-msg--hint");
   }
 }
 
@@ -470,28 +653,23 @@ function showGate() {
 enter.addEventListener("click", () => {
   const input = pass.value.trim();
   if (!input) {
-    setGateMessage("Type the key.", "error");
+    setGateMessage("Type our key.", "error");
     return;
   }
   if (hashLike(input) === hashLike(SECRET_PLAIN)) {
+    enter.classList.add("gate-enter--success");
+    const rect = gate.getBoundingClientRect();
+    spawnHearts({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2, count: 12 });
     gate.hidden = true;
     gate.setAttribute("hidden", "");
     pass.value = "";
     setGateMessage("");
+    setTimeout(() => enter.classList.remove("gate-enter--success"), 600);
   } else {
     setGateMessage("Wrong key. Try again.", "error");
     pass.select();
   }
 });
-
-if (hint) {
-  hint.addEventListener("click", () => {
-    setGateMessage(HINT, "hint");
-    if (msg) {
-      msg.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }
-  });
-}
 
 pass.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
