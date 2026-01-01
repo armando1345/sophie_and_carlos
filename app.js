@@ -447,19 +447,31 @@ function openModal(item, options = {}) {
       </article>`;
     modalFoot.innerHTML = tagsMarkup ? `<div class="letter-tags">${tagsMarkup}</div>` : "";
   } else if (item.type === "image") {
-    modalBody.innerHTML = `<figure class="media-frame image-frame" tabindex="0" role="button" aria-label="View image fullscreen"><img src="${item.src}" alt="${item.caption || ""}"></figure><figcaption class="meta" style="margin-top:8px">${item.caption || ""}</figcaption>`;
-    modalFoot.innerHTML = metaInfo ? `<span class="meta">${metaInfo}</span>` : "";
+    modalBody.innerHTML = `
+      <figure class="media-frame image-frame">
+        <button class="image-back" type="button" aria-label="Back">Back</button>
+        <img src="${item.src}" alt="${item.caption || ""}" role="button" tabindex="0" aria-label="View image fullscreen">
+      </figure>`;
+    modalFoot.innerHTML = `${metaInfo ? `<span class="meta">${metaInfo}</span>` : ""}<a class="btn" href="${item.src}" download>Download</a>`;
     const frame = $(".image-frame", modalBody);
+    const back = $(".image-back", modalBody);
+    const img = frame ? $("img", frame) : null;
     activeImageFrame = frame;
-    if (frame) {
-      frame.addEventListener("click", () => {
+    if (img) {
+      img.addEventListener("click", () => {
         toggleImageFullscreen(frame);
       });
-      frame.addEventListener("keydown", (event) => {
+      img.addEventListener("keydown", (event) => {
         if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") {
           event.preventDefault();
           toggleImageFullscreen(frame);
         }
+      });
+    }
+    if (back) {
+      back.addEventListener("click", () => {
+        exitFullscreen();
+        exitImageMode(frame);
       });
     }
   } else if (item.type === "audio") {
@@ -481,14 +493,34 @@ function openModal(item, options = {}) {
     modalBody.innerHTML = `
       <div class="media-frame video-frame">
         <button class="video-back" type="button" aria-label="Back">Back</button>
-        <video controls playsinline preload="metadata" src="${item.src}"></video>
+        <video playsinline preload="metadata" src="${item.src}"></video>
         <span class="video-sparkle" aria-hidden="true"></span>
-      </div>
-      <p class="meta" style="margin-top:8px">${item.caption || ""}</p>`;
+        <div class="video-controls" role="group" aria-label="Video controls">
+          <button class="p-btn v-play" type="button" aria-label="Play">
+            <svg class="ico ico-play" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 5v14l11-7z" fill="currentColor"/>
+            </svg>
+            <svg class="ico ico-pause" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/>
+            </svg>
+          </button>
+          <div class="p-time">
+            <span class="p-cur">0:00</span>
+            <div class="pbar"><div class="fill"></div></div>
+            <span class="p-dur">0:00</span>
+          </div>
+          <button class="p-btn v-full" type="button" aria-label="Fullscreen">
+            <svg class="ico ico-full" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 9V4h5M20 15v5h-5M20 9V4h-5M4 15v5h5"/>
+            </svg>
+          </button>
+        </div>
+      </div>`;
     modalFoot.innerHTML = `${metaInfo ? `<span class="meta">${metaInfo}</span>` : ""}<a class="btn" href="${item.src}" download>Download</a>`;
     const video = $("video", modalBody);
     const frame = $(".video-frame", modalBody);
     const back = $(".video-back", modalBody);
+    const controls = $(".video-controls", modalBody);
     activeVideo = video;
     activeVideoFrame = frame;
     if (video) {
@@ -505,6 +537,9 @@ function openModal(item, options = {}) {
         exitFullscreen();
         exitVideoMode(video, frame);
       });
+    }
+    if (video && controls) {
+      bindVideoPlayer(video, frame, controls);
     }
   } else {
     modalBody.innerHTML = "";
@@ -670,6 +705,79 @@ function bindPlayer(audio, root, item) {
   audio.addEventListener("ended", () => {
     play.classList.remove("is-playing");
     hideMini();
+  });
+
+  sync();
+}
+
+function bindVideoPlayer(video, frame, root) {
+  if (!video || !root) return;
+  const play = $(".v-play", root);
+  const full = $(".v-full", root);
+  const current = $(".p-cur", root);
+  const duration = $(".p-dur", root);
+  const bar = $(".pbar", root);
+  const fill = $(".fill", root);
+
+  if (!play || !current || !duration || !bar || !fill) return;
+
+  function sync() {
+    current.textContent = fmtTime(video.currentTime);
+    if (Number.isFinite(video.duration)) {
+      duration.textContent = fmtTime(video.duration);
+    }
+    fill.style.width = video.duration ? `${(video.currentTime / video.duration) * 100}%` : "0%";
+    const isPlaying = !video.paused;
+    play.classList.toggle("is-playing", isPlaying);
+    play.setAttribute("aria-label", isPlaying ? "Pause" : "Play");
+  }
+
+  function seek(clientX) {
+    const rect = bar.getBoundingClientRect();
+    const pct = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    if (Number.isFinite(video.duration)) {
+      video.currentTime = pct * video.duration;
+    }
+    sync();
+  }
+
+  function togglePlay() {
+    if (video.paused) {
+      video.play();
+    } else {
+      video.pause();
+    }
+  }
+
+  play.addEventListener("click", togglePlay);
+  bar.addEventListener("mousedown", (event) => seek(event.clientX));
+  bar.addEventListener("touchstart", (event) => {
+    seek(event.touches[0].clientX);
+  }, { passive: true });
+
+  if (full) {
+    full.addEventListener("click", () => {
+      const isFull = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+      if (isFull) {
+        exitFullscreen();
+        exitVideoMode(video, frame);
+        return;
+      }
+      enterVideoMode(frame);
+      requestFullscreenFor(frame || video);
+    });
+  }
+
+  video.addEventListener("timeupdate", sync);
+  video.addEventListener("loadedmetadata", sync);
+  video.addEventListener("play", () => {
+    sync();
+  });
+  video.addEventListener("pause", () => {
+    sync();
+  });
+  video.addEventListener("ended", () => {
+    sync();
   });
 
   sync();
