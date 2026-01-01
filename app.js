@@ -75,6 +75,7 @@ const TYPE_LABELS = {
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 let activeVideo = null;
 let activeVideoFrame = null;
+let activeImageFrame = null;
 
 function spawnHearts({ x, y, count = 16 }) {
   if (prefersReducedMotion) return;
@@ -107,15 +108,17 @@ function spawnHearts({ x, y, count = 16 }) {
 }
 
 function requestFullscreenFor(element) {
-  if (!element) return;
+  if (!element) return false;
   const request = element.requestFullscreen || element.webkitRequestFullscreen || element.msRequestFullscreen;
   if (request) {
     request.call(element);
-    return;
+    return true;
   }
   if (element.webkitEnterFullscreen) {
     element.webkitEnterFullscreen();
+    return true;
   }
+  return false;
 }
 
 function exitFullscreen() {
@@ -135,6 +138,27 @@ function exitVideoMode(video, frame) {
   if (frame) frame.classList.remove("video-frame--active");
   if (video && !video.paused) {
     video.pause();
+  }
+}
+
+function exitImageMode(frame) {
+  if (frame) frame.classList.remove("image-frame--active");
+}
+
+function toggleImageFullscreen(frame) {
+  if (!frame) return;
+  const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+  if (fullscreenElement) {
+    exitFullscreen();
+    return;
+  }
+  if (frame.classList.contains("image-frame--active")) {
+    frame.classList.remove("image-frame--active");
+    return;
+  }
+  const started = requestFullscreenFor(frame);
+  if (!started) {
+    frame.classList.add("image-frame--active");
   }
 }
 
@@ -399,6 +423,7 @@ function updateReadProgress() {
 function openModal(item, options = {}) {
   const origin = options.origin || null;
   lastFocusedElement = document.activeElement;
+  activeImageFrame = null;
   modalTitle.textContent = item.title;
   isLetterOpen = item.type === "text";
   if (readProgress) {
@@ -422,8 +447,21 @@ function openModal(item, options = {}) {
       </article>`;
     modalFoot.innerHTML = tagsMarkup ? `<div class="letter-tags">${tagsMarkup}</div>` : "";
   } else if (item.type === "image") {
-    modalBody.innerHTML = `<figure class="media-frame image-frame"><img src="${item.src}" alt="${item.caption || ""}"></figure><figcaption class="meta" style="margin-top:8px">${item.caption || ""}</figcaption>`;
+    modalBody.innerHTML = `<figure class="media-frame image-frame" tabindex="0" role="button" aria-label="View image fullscreen"><img src="${item.src}" alt="${item.caption || ""}"></figure><figcaption class="meta" style="margin-top:8px">${item.caption || ""}</figcaption>`;
     modalFoot.innerHTML = metaInfo ? `<span class="meta">${metaInfo}</span>` : "";
+    const frame = $(".image-frame", modalBody);
+    activeImageFrame = frame;
+    if (frame) {
+      frame.addEventListener("click", () => {
+        toggleImageFullscreen(frame);
+      });
+      frame.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") {
+          event.preventDefault();
+          toggleImageFullscreen(frame);
+        }
+      });
+    }
   } else if (item.type === "audio") {
     const id = `aud_${item.id}`;
     modalBody.innerHTML = `
@@ -498,8 +536,10 @@ function closeModal() {
   document.body.classList.remove("modal-open");
   exitFullscreen();
   exitVideoMode(activeVideo, activeVideoFrame);
+  exitImageMode(activeImageFrame);
   activeVideo = null;
   activeVideoFrame = null;
+  activeImageFrame = null;
   if (readProgress) {
     readProgress.style.setProperty("--progress", "0%");
     readProgress.style.setProperty("opacity", "0");
