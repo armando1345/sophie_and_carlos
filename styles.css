@@ -468,6 +468,31 @@ h1{margin:0;font-weight:900;letter-spacing:.01em;font-size:clamp(26px,3.6vw,36px
 .image-frame{
   cursor:zoom-in;
 }
+.image-back{
+  position:absolute;
+  top:12px;
+  left:12px;
+  z-index:4;
+  padding:8px 14px;
+  border-radius:999px;
+  border:1px dashed rgba(141,55,82,.28);
+  background:rgba(255,221,232,.85);
+  color:var(--accent-ink);
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  cursor:pointer;
+  backdrop-filter:blur(6px);
+  opacity:0;
+  pointer-events:none;
+  visibility:hidden;
+  transform:translateY(-6px);
+  transition:opacity .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+.image-back:hover{
+  transform:translateY(-1px);
+  box-shadow:0 10px 24px rgba(48,38,58,.18);
+}
 .image-frame--active{
   position:fixed;
   inset:0;
@@ -481,6 +506,14 @@ h1{margin:0;font-weight:900;letter-spacing:.01em;font-size:clamp(26px,3.6vw,36px
   align-items:center;
   justify-content:center;
   cursor:zoom-out;
+}
+.image-frame--active .image-back,
+.image-frame:fullscreen .image-back,
+.image-frame:-webkit-full-screen .image-back{
+  opacity:1;
+  pointer-events:auto;
+  visibility:visible;
+  transform:translateY(0);
 }
 .image-frame--active img{
   width:100%;
@@ -515,6 +548,49 @@ h1{margin:0;font-weight:900;letter-spacing:.01em;font-size:clamp(26px,3.6vw,36px
 .image-frame:fullscreen::after,
 .image-frame:-webkit-full-screen::after{
   display:none;
+}
+.video-controls{
+  position:absolute;
+  left:14px;
+  right:14px;
+  bottom:14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px dashed rgba(141,55,82,.22);
+  background:linear-gradient(135deg, rgba(255,255,255,.95), rgba(233,224,255,.88));
+  box-shadow:0 16px 36px rgba(48,38,58,.2);
+  backdrop-filter:blur(8px);
+  z-index:4;
+}
+.video-controls .p-btn{
+  background:linear-gradient(135deg, rgba(255,255,255,.98), rgba(255,221,232,.85));
+  color:var(--accent-ink);
+  font-weight:900;
+}
+.video-controls .ico{
+  width:18px;
+  height:18px;
+  display:block;
+}
+.video-controls .ico-pause{
+  display:none;
+}
+.video-controls .p-btn.is-playing .ico-play{
+  display:none;
+}
+.video-controls .p-btn.is-playing .ico-pause{
+  display:block;
+}
+.video-controls .pbar{
+  background:rgba(48,38,58,.12);
+}
+.video-controls .v-full{
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  font-size:12px;
 }
 .video-back{
   position:absolute;
