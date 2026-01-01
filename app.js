@@ -41,6 +41,24 @@ Trying to give each other beautiful, happy things.
 That will be enough.
 
 (and here is the magic emoji trident hahaha: 😘🫂❤️)`
+  },
+  {
+    id: "image_2026",
+    type: "image",
+    title: "¡2026 is here!",
+    date: "2026-01-01",
+    src: "https://res.cloudinary.com/dul66qlpq/image/upload/v1767224560/2026_nl0suo.png",
+    cover: "https://res.cloudinary.com/dul66qlpq/image/upload/v1767224560/2026_nl0suo.png",
+    caption: "Maybe this year we will be like in that image"
+  },
+  {
+    id: "video_sophie_carlos_2026",
+    type: "video",
+    title: "This wasnt my best animation",
+    date: "2026-01-01",
+    src: "https://res.cloudinary.com/dul66qlpq/video/upload/v1767224562/soph_y_yo_eqo1ql.mp4",
+    cover: "https://res.cloudinary.com/dul66qlpq/image/upload/v1767224850/ojos_cerrados_md3m20.png",
+    caption: "I still hope you love it 😘"
   }
 ];
 
@@ -55,6 +73,8 @@ const TYPE_LABELS = {
 };
 
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let activeVideo = null;
+let activeVideoFrame = null;
 
 function spawnHearts({ x, y, count = 16 }) {
   if (prefersReducedMotion) return;
@@ -84,6 +104,38 @@ function spawnHearts({ x, y, count = 16 }) {
     setTimeout(() => span.remove(), duration + delay + 40);
   }
   document.body.appendChild(frag);
+}
+
+function requestFullscreenFor(element) {
+  if (!element) return;
+  const request = element.requestFullscreen || element.webkitRequestFullscreen || element.msRequestFullscreen;
+  if (request) {
+    request.call(element);
+    return;
+  }
+  if (element.webkitEnterFullscreen) {
+    element.webkitEnterFullscreen();
+  }
+}
+
+function exitFullscreen() {
+  const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+  if (exit) exit.call(document);
+}
+
+function enterVideoMode(frame) {
+  if (!overlay) return;
+  overlay.classList.add("video-mode");
+  if (frame) frame.classList.add("video-frame--active");
+}
+
+function exitVideoMode(video, frame) {
+  if (!overlay) return;
+  overlay.classList.remove("video-mode");
+  if (frame) frame.classList.remove("video-frame--active");
+  if (video && !video.paused) {
+    video.pause();
+  }
 }
 
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -192,9 +244,28 @@ function cardTemplate(item) {
   }
 
   const typeLabel = tagLabel(item.type);
-  const meta = `${fmtDate(item.date)}${item.tags && item.tags.length ? ` &bull; ${(item.tags || []).join(" &bull; ")}` : ""}`;
+  const dateLabel = item.date ? fmtDate(item.date) : "";
   const coverSrc = item.type === "image" ? item.cover || item.src : item.cover || "";
   const typeLabelLower = typeLabel.toLowerCase();
+  const isVisual = item.type === "image" || item.type === "video";
+
+  if (isVisual) {
+    return `
+      <article class="card card--media" data-id="${item.id}" data-type="${item.type}" data-tags="${(item.tags || []).join(",")}" tabindex="0" role="button" aria-label="Open ${typeLabelLower} ${ariaTitle}">
+        <span class="tag">${typeLabel}</span>
+        <img class="cover" src="${coverSrc}" alt="" loading="lazy">
+        ${item.type === "video" ? `<span class="media-play" aria-hidden="true">Play</span>` : ""}
+        <div class="media-overlay">
+          <div class="media-plate">
+            ${dateLabel ? `<span class="media-meta">${dateLabel}</span>` : ""}
+            <h3 class="media-title">${safeTitle}</h3>
+            ${item.caption ? `<p class="media-sub">${item.caption}</p>` : ""}
+          </div>
+        </div>
+      </article>`;
+  }
+
+  const meta = `${fmtDate(item.date)}${item.tags && item.tags.length ? ` &bull; ${(item.tags || []).join(" &bull; ")}` : ""}`;
 
   return `
     <article class="card" data-id="${item.id}" data-type="${item.type}" data-tags="${(item.tags || []).join(",")}" tabindex="0" role="button" aria-label="Open ${typeLabelLower} ${ariaTitle}">
@@ -371,11 +442,32 @@ function openModal(item, options = {}) {
   } else if (item.type === "video") {
     modalBody.innerHTML = `
       <div class="media-frame video-frame">
-        <video controls playsinline src="${item.src}"></video>
+        <button class="video-back" type="button" aria-label="Back">Back</button>
+        <video controls playsinline preload="metadata" src="${item.src}"></video>
         <span class="video-sparkle" aria-hidden="true"></span>
       </div>
       <p class="meta" style="margin-top:8px">${item.caption || ""}</p>`;
     modalFoot.innerHTML = `${metaInfo ? `<span class="meta">${metaInfo}</span>` : ""}<a class="btn" href="${item.src}" download>Download</a>`;
+    const video = $("video", modalBody);
+    const frame = $(".video-frame", modalBody);
+    const back = $(".video-back", modalBody);
+    activeVideo = video;
+    activeVideoFrame = frame;
+    if (video) {
+      video.addEventListener("play", () => {
+        enterVideoMode(frame);
+        requestFullscreenFor(frame || video);
+      });
+      video.addEventListener("ended", () => {
+        exitVideoMode(video, frame);
+      });
+    }
+    if (back) {
+      back.addEventListener("click", () => {
+        exitFullscreen();
+        exitVideoMode(video, frame);
+      });
+    }
   } else {
     modalBody.innerHTML = "";
     modalFoot.innerHTML = metaInfo ? `<span class="meta">${metaInfo}</span>` : "";
@@ -404,6 +496,10 @@ function openModal(item, options = {}) {
 function closeModal() {
   overlay.classList.remove("show");
   document.body.classList.remove("modal-open");
+  exitFullscreen();
+  exitVideoMode(activeVideo, activeVideoFrame);
+  activeVideo = null;
+  activeVideoFrame = null;
   if (readProgress) {
     readProgress.style.setProperty("--progress", "0%");
     readProgress.style.setProperty("opacity", "0");
@@ -447,6 +543,17 @@ overlay.addEventListener("keydown", (event) => {
 window.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && overlay.classList.contains("show")) {
     closeModal();
+  }
+});
+
+document.addEventListener("fullscreenchange", () => {
+  if (!document.fullscreenElement) {
+    exitVideoMode(activeVideo, activeVideoFrame);
+  }
+});
+document.addEventListener("webkitfullscreenchange", () => {
+  if (!document.webkitFullscreenElement) {
+    exitVideoMode(activeVideo, activeVideoFrame);
   }
 });
 
