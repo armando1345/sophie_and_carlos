@@ -3,6 +3,27 @@
    ============================================ */
 const ENTRIES = [
   {
+    id: "letter_valentine_kiss",
+    type: "text",
+    style: "valentine",
+    title: "My love, what if I kiss you right now?",
+    subtitle: "Happy Valentine's Day, my princess",
+    teaser: "No noise. No distance. Just us.",
+    date: "2026-02-14",
+    cover: "https://res.cloudinary.com/dul66qlpq/image/upload/v1771094129/banner_valentin_ycdpnw.png",
+    text: `My love, what if I kiss you right now?
+
+While you read this there is no noise, no distance. Forget all of that. There are no interruptions or anything that keeps us from being together. You feel my warmth and my presence right behind you.
+You feel my hands, slow, descending to your hips; a firm grip, but with the delicacy of someone who memorizes the curves of your body as if you were sacred.
+You feel the real weight of my hands on your hips, an anchor that binds us. The heat of my body passes through your clothes, pressing your back against my chest until the space between us ceases to exist.
+My breath hits your neck. It's like a burning, enamored fire that makes your skin prickle and causes you to shrug your shoulders almost instinctively. The outside world fades away and you can feel my heart pounding hard against your back. My lips rest on your skin... slowly. It's a dense, wet kiss that you recognize instantly. You know it's me, the one who loves you until the end of time.
+You feel the exact pressure, the wet trail left by my tongue and that electric shiver that climbs up your nape until it gets lost in your hair. I kiss the edge of your jaw, right where the skin is thinnest. Our hands intertwine tightly and, when I reach your mouth: there is no truce anymore.
+Our touch becomes intense, wild; my lips enveloping yours, my tongue searching for you. I bite your lower lip, a gentle tug, while our tongues entwine, hot and playful, in a dance that only we know how to dance.
+In this exact moment, my love, it doesn't matter how many kilometers the map says separate us. If you can feel my love, the weight of my hands holding yours and the heat of my mouth on yours, it's because distance has just lost the battle.
+Ockham and the nominalists said that love was not something real, but only a name. Nothing more than a word. Today, they have just lost too. All those ideas that don't believe in love and in the service to those you love, they have just lost as well.
+I love you, my princess. Happy Valentine's Day!`
+  },
+  {
     id: "letter_grandpa",
     type: "text",
     title: "What My Grandpa Would Say About Our First Year Together",
@@ -200,7 +221,32 @@ function letterBodyText(item) {
   return lines.join("\n").trim();
 }
 
+function isValentineLetter(item) {
+  return item.type === "text" && item.style === "valentine";
+}
+
+function valentineLetterMarkup(item) {
+  const bannerSrc = String(item.cover || "").trim();
+  const banner = bannerSrc
+    ? `<figure class="letter-banner"><img src="${bannerSrc}" alt="Valentine banner" loading="lazy"></figure>`
+    : "";
+  return `
+    ${banner}
+    <p>While you read this there is <span class="line-highlight line-highlight--pulse"><strong>no noise, no distance</strong></span>. Forget all of that. There are no interruptions or anything that keeps us from being together. You feel my warmth and my presence right behind you.</p>
+    <p>You feel my hands, slow, descending to your hips; <strong>a firm grip</strong>, but with the delicacy of someone who memorizes the curves of your body as if you were sacred.</p>
+    <p>You feel the real weight of my hands on your hips, <span class="line-highlight line-highlight--soft"><strong>an anchor that binds us</strong></span>. The heat of my body passes through your clothes, pressing your back against my chest until the space between us ceases to exist.</p>
+    <p>My breath hits your neck. It's like a <strong>burning, enamored fire</strong> that makes your skin prickle and causes you to shrug your shoulders almost instinctively. The outside world fades away and you can feel my heart pounding hard against your back. My lips rest on your skin... slowly. It's a dense, wet kiss that you recognize instantly. You know it's me, the one who loves you until the end of time.</p>
+    <p>You feel the exact pressure, the wet trail left by my tongue and that electric shiver that climbs up your nape until it gets lost in your hair. I kiss the edge of your jaw, right where the skin is thinnest. Our hands intertwine tightly and, when I reach your mouth: <span class="line-highlight line-highlight--spark"><strong>there is no truce anymore</strong></span>.</p>
+    <p>Our touch becomes intense, wild; my lips enveloping yours, my tongue searching for you. I bite your lower lip, a gentle tug, while our tongues entwine, hot and playful, in a dance that only we know how to dance.</p>
+    <p>In this exact moment, my love, it doesn't matter how many kilometers the map says separate us. If you can feel my love, the weight of my hands holding yours and the heat of my mouth on yours, it's because <span class="line-highlight line-highlight--gold"><strong>distance has just lost the battle</strong></span>.</p>
+    <p>Ockham and the nominalists said that love was not something real, but only a name. Nothing more than a word. Today, <strong>they have just lost too</strong>. All those ideas that don't believe in love and in the service to those you love, they have just lost as well.</p>
+    <p class="letter-closing letter-closing--valentine"><span class="line-highlight line-highlight--pulse"><strong>I love you, my princess. Happy Valentine's Day!</strong></span></p>`;
+}
+
 function letterBodyMarkup(item) {
+  if (isValentineLetter(item)) {
+    return valentineLetterMarkup(item);
+  }
   const body = letterBodyText(item);
   if (!body) return "";
   const blocks = body.split(/\n{2,}/).map((block) => block.trim()).filter(Boolean);
@@ -239,20 +285,34 @@ function buildTextCard(item, tagsMarkup) {
   const coverSrc = item.cover || "";
   const dateISO = item.date || "";
   const dateLabel = item.date ? fmtDate(item.date) : "";
+  const isValentine = isValentineLetter(item);
+  const cardClass = isValentine ? "card card--text card--valentine" : "card card--text";
+  const cardLabel = isValentine ? "Valentine Letter" : "Letter";
+  const cardAria = isValentine ? `Read Valentine letter ${ariaTitle}` : `Read letter ${ariaTitle}`;
+  const cardTitleMarkup = isValentine ? "" : `<h3 class="title">${safeTitle}</h3>`;
+  const teaser = String(item.teaser || "");
+  const valentineTeaser = isValentine ? `
+        <p class="card-love-kicker">${item.subtitle || "Happy Valentine's Day"}</p>
+        <p class="card-love-copy">
+          <span class="card-love-highlight card-love-highlight--pulse">No noise. No distance.</span>
+          <span class="card-love-highlight card-love-highlight--soft">Distance has just lost the battle.</span>
+        </p>
+        ${teaser ? `<p class="card-love-teaser">${teaser}</p>` : ""}` : "";
 
   return `
-    <article class="card card--text" data-id="${item.id}" data-type="${item.type}" data-tags="${(item.tags || []).join(",")}" tabindex="0" role="button" aria-label="Read letter ${ariaTitle}">
+    <article class="${cardClass}" data-id="${item.id}" data-type="${item.type}" data-tags="${(item.tags || []).join(",")}" tabindex="0" role="button" aria-label="${cardAria}">
       <span class="tag">${typeLabel}</span>
       <div class="content">
         ${coverSrc ? `<figure class="card-hero"><img src="${coverSrc}" alt="" loading="lazy"></figure>` : ""}
         <div class="card-head">
-          <span class="card-head__label">Letter</span>
+          <span class="card-head__label">${cardLabel}</span>
         </div>
-        <h3 class="title">${safeTitle}</h3>
+        ${cardTitleMarkup}
+        ${valentineTeaser}
         ${dateLabel ? `<div class="card-meta"><time datetime="${dateISO}">${dateLabel}</time></div>` : ""}
         <div class="card-foot">
           ${tagsMarkup}
-          <span class="cta" aria-hidden="true">Read letter<span class="cta-icon">&#8599;</span></span>
+          <span class="cta" aria-hidden="true">${isValentine ? "Open this letter" : "Read letter"}<span class="cta-icon">&#8599;</span></span>
         </div>
       </div>
     </article>`;
@@ -437,13 +497,19 @@ function openModal(item, options = {}) {
     const dateISO = item.date || "";
     const dateLabel = item.date ? fmtDate(item.date) : "";
     const tagsMarkup = createTagPills(item.tags);
+    const isValentine = isValentineLetter(item);
+    const letterLabel = isValentine ? "Valentine Letter" : "Letter";
+    const innerTitle = "";
+    const innerSubtitle = isValentine ? `<p class="letter-subtitle">${item.subtitle || "Happy Valentine's Day"}</p>` : "";
     modalBody.innerHTML = `
-      <article class="letter">
+      <article class="letter${isValentine ? " letter--valentine" : ""}">
         <header class="letter-header">
-          <span class="letter-label">Letter</span>
+          <span class="letter-label">${letterLabel}</span>
           ${dateLabel ? `<time class="letter-date" datetime="${dateISO}">${dateLabel}</time>` : ""}
+          ${innerTitle}
+          ${innerSubtitle}
         </header>
-        <div class="letter-body">${letterBodyMarkup(item)}</div>
+        <div class="letter-body${isValentine ? " letter-body--valentine" : ""}">${letterBodyMarkup(item)}</div>
       </article>`;
     modalFoot.innerHTML = tagsMarkup ? `<div class="letter-tags">${tagsMarkup}</div>` : "";
   } else if (item.type === "image") {
