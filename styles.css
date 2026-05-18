@@ -45,6 +45,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 .logo::after{content:"";position:absolute;inset:5px;border:1px solid rgba(128,14,19,.14);border-radius:50%;}
 .logomark{width:40px;height:40px}
 h1{margin:0;font-family:var(--font-display);font-weight:400;font-size:clamp(28px,3.6vw,42px);line-height:1;color:var(--rich-mahogany)}
+.brand-name-short{display:none}
 .subtitle{margin:0;color:var(--muted);font-size:18px}
 .head-right{display:flex;align-items:center;gap:10px}
 .chip{border:1px solid rgba(128,14,19,.22);background:transparent;color:var(--accent-ink);border-radius:999px;padding:7px 12px;display:inline-flex;align-items:center;gap:.5ch;line-height:1;font-weight:700;font-size:11px;box-shadow:none;text-transform:uppercase;letter-spacing:.1em}
@@ -259,10 +260,6 @@ body:not(.article-route) .logomark path{
 .tool-popover--filters{
   width:min(300px, calc(100vw - 28px));
 }
-.tool-popover .search{
-  display:block;
-  min-width:0;
-}
 .tool-popover .filters{
   display:grid;
   grid-template-columns:repeat(2, minmax(0, 1fr));
@@ -294,13 +291,12 @@ body:not(.article-route) .logomark path{
     align-items:center;
   }
   body:not(.article-route) .brand h1{
-    max-width:42vw;
-    overflow:hidden;
     font-size:22px;
     line-height:1;
-    text-overflow:ellipsis;
     white-space:nowrap;
   }
+  body:not(.article-route) .brand-name-full{display:none}
+  body:not(.article-route) .brand-name-short{display:inline}
   body:not(.article-route) .logo{
     width:38px;
     height:38px;
@@ -345,7 +341,6 @@ body:not(.article-route) .logomark path{
 
 @media (max-width:420px){
   body:not(.article-route) .brand h1{
-    max-width:36vw;
     font-size:20px;
   }
   body:not(.article-route) .logo{
@@ -376,12 +371,8 @@ body:not(.article-route) .logomark path{
 
 /* Tools */
 .tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0}
-.search{position:relative;flex:1;min-width:220px}
-.search input{width:100%;padding:14px 16px 14px 42px;border-radius:999px;border:1px solid rgba(128,14,19,.18);background:var(--paper);font-weight:500;outline:none;box-shadow:none;color:var(--ink)}
-.search .ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--muted)}
 .filters{display:flex;gap:8px;flex-wrap:wrap}
 .filter{padding:8px 12px;border-radius:999px;border:1px solid rgba(128,14,19,.18);background:transparent;color:var(--ink);font-weight:600}
-.filter[aria-pressed="true"]{background:var(--dark-wine);color:var(--porcelain);border-color:var(--dark-wine)}
 .tool-actions{display:flex;gap:8px;align-items:center}
 .btn-ghost{
   border:1px solid rgba(128,14,19,.2);
@@ -1513,19 +1504,6 @@ body:not(.article-route) .logomark path{
     align-items:stretch;
     gap:12px;
   }
-  .search{
-    min-width:0;
-    width:100%;
-  }
-  .search input{
-    padding:16px 18px 16px 48px;
-    font-size:16px;
-  }
-  .search .ico{
-    width:20px;
-    height:20px;
-    left:16px;
-  }
   .filters{
     flex-wrap:nowrap;
     overflow-x:auto;
@@ -1989,10 +1967,10 @@ body:not(.article-route) .logomark path{
   justify-content:center;
   padding:20px;
   background:
-    radial-gradient(circle at 20% 18%, rgba(226,160,255,.28), transparent 28%),
-    radial-gradient(circle at 82% 72%, rgba(255,197,92,.24), transparent 30%),
-    rgba(37,9,2,.48);
-  backdrop-filter:blur(5px);
+    linear-gradient(180deg, rgba(37,9,2,.72), rgba(37,9,2,.82)),
+    radial-gradient(circle at 20% 18%, rgba(226,160,255,.18), transparent 30%),
+    radial-gradient(circle at 82% 72%, rgba(255,197,92,.14), transparent 32%);
+  backdrop-filter:blur(14px) saturate(.86);
 }
 .birthday-popup.show{
   display:flex;
@@ -2275,6 +2253,10 @@ body:not(.article-route) .logomark path{
     align-items:center;
     padding:max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom));
     overflow:auto;
+    background:
+      linear-gradient(180deg, rgba(37,9,2,.86), rgba(37,9,2,.92)),
+      radial-gradient(circle at 50% 0%, rgba(226,160,255,.14), transparent 36%);
+    backdrop-filter:blur(18px) saturate(.82);
   }
   .birthday-card{
     width:min(420px,100%);
@@ -2422,7 +2404,7 @@ body:not(.article-route) .logomark path{
   padding:clamp(18px,3vw,42px);
   background:
     linear-gradient(90deg, rgba(37,9,2,.72), rgba(56,4,14,.52)),
-    url("fondo_login.png") center/cover;
+    url("fondo_login.webp") center/cover;
 }
 .gate-shell{
   width:min(1120px,100%);
@@ -2579,7 +2561,7 @@ body:not(.article-route) .logomark path{
     padding:max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom));
     background:
       linear-gradient(180deg, rgba(37,9,2,.7), rgba(56,4,14,.6)),
-      url("fondo_login.png") center/cover;
+      url("fondo_login.webp") center/cover;
   }
   .gate-shell{
     width:min(430px,100%);
@@ -2874,6 +2856,12 @@ body:not(.article-route) .logomark path{
 .archive-collection + .archive-collection{
   margin-top:clamp(42px,7vw,88px);
 }
+.archive-collection--wine{
+  padding-bottom:clamp(36px,5vw,58px);
+}
+.archive-collection--wine + .archive-collection--porcelain{
+  margin-top:clamp(28px,4vw,48px);
+}
 .collection-hero{
   min-height:clamp(420px,58vw,640px);
   display:flex;
@@ -3082,6 +3070,12 @@ body:not(.article-route) .logomark path{
   .archive-collection + .archive-collection{
     margin-top:56px;
   }
+  .archive-collection--wine{
+    padding-bottom:38px;
+  }
+  .archive-collection--wine + .archive-collection--porcelain{
+    margin-top:34px;
+  }
   .collection-hero{
     min-height:420px;
   }
@@ -3125,13 +3119,12 @@ body:not(.article-route) .logomark path{
     align-items:center;
   }
   body:not(.article-route) .brand h1{
-    max-width:42vw;
-    overflow:hidden;
     font-size:22px;
     line-height:1;
-    text-overflow:ellipsis;
     white-space:nowrap;
   }
+  body:not(.article-route) .brand-name-full{display:none}
+  body:not(.article-route) .brand-name-short{display:inline}
   body:not(.article-route) .logo{
     width:38px;
     height:38px;
@@ -3177,7 +3170,6 @@ body:not(.article-route) .logomark path{
 
 @media (max-width:420px){
   body:not(.article-route) .brand h1{
-    max-width:36vw;
     font-size:20px;
   }
   body:not(.article-route) .logo{

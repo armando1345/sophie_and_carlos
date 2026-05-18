@@ -196,7 +196,7 @@ const ARCHIVE_COLLECTIONS = [
     cta: "Read Collection",
     types: ["text"],
     tone: "wine",
-    image: "fondo_letters.png"
+    image: "fondo_letters.webp"
   },
   {
     id: "images",
@@ -205,15 +205,7 @@ const ARCHIVE_COLLECTIONS = [
     cta: "View Collection",
     types: ["image"],
     tone: "porcelain",
-    image: "fondo_fotos.png"
-  },
-  {
-    id: "audio",
-    title: "Audio",
-    phrase: "Voices, pauses and little traces of presence saved for later.",
-    cta: "Listen to Collection",
-    types: ["audio"],
-    tone: "mauve"
+    image: "fondo_fotos.webp"
   },
   {
     id: "videos",
@@ -222,7 +214,7 @@ const ARCHIVE_COLLECTIONS = [
     cta: "View Collection",
     types: ["video"],
     tone: "mahogany",
-    image: "fondo_videos.png"
+    image: "fondo_videos.webp"
   }
 ];
 
@@ -332,6 +324,57 @@ function fmtDate(iso) {
   return Number.isNaN(date.getTime()) ? iso : dateFormatter.format(date);
 }
 
+function escapeAttr(value = "") {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function optimizedCloudinaryImage(url, width = 1200) {
+  const src = String(url || "");
+  if (!src.includes("res.cloudinary.com") || !src.includes("/image/upload/")) return src;
+  if (/\/image\/upload\/[^/]*(?:f_auto|q_auto|w_\d+)/.test(src)) return src;
+  return src.replace("/image/upload/", `/image/upload/f_auto,q_auto,w_${width}/`);
+}
+
+function cloudinarySrcSet(url, widths = [480, 768, 1100, 1600]) {
+  const src = String(url || "");
+  if (!src.includes("res.cloudinary.com") || !src.includes("/image/upload/")) return "";
+  return widths.map((width) => `${optimizedCloudinaryImage(src, width)} ${width}w`).join(", ");
+}
+
+function imageAttrs(src, alt = "", options = {}) {
+  const {
+    width = 1000,
+    widths = [480, 768, 1100, 1600],
+    sizes = "(max-width: 720px) 92vw, 520px",
+    loading = "lazy",
+    extra = ""
+  } = options;
+  const safeSrc = optimizedCloudinaryImage(src, width);
+  const srcSet = cloudinarySrcSet(src, widths);
+  return [
+    `src="${escapeAttr(safeSrc)}"`,
+    srcSet ? `srcset="${escapeAttr(srcSet)}"` : "",
+    srcSet ? `sizes="${escapeAttr(sizes)}"` : "",
+    `alt="${escapeAttr(alt)}"`,
+    loading ? `loading="${loading}"` : "",
+    extra
+  ].filter(Boolean).join(" ");
+}
+
+function backgroundImageValue(src, width = 1600) {
+  const value = String(src || "");
+  const localOptimized = value.match(/^(fondo_[a-z0-9_]+)\.png$/i);
+  if (localOptimized) {
+    const stem = localOptimized[1];
+    return `image-set(url('${stem}.avif') type('image/avif'), url('${stem}.webp') type('image/webp'), url('${value}') type('image/png'))`;
+  }
+  return `url('${optimizedCloudinaryImage(value, width)}')`;
+}
+
 // Gate (light privacy).
 const SECRET_PLAIN = "SMDD+CARM";
 
@@ -361,7 +404,7 @@ function isValentineLetter(item) {
 function valentineLetterMarkup(item) {
   const bannerSrc = String(item.cover || "").trim();
   const banner = bannerSrc
-    ? `<figure class="letter-banner"><img src="${bannerSrc}" alt="Valentine banner" loading="lazy"></figure>`
+    ? `<figure class="letter-banner"><img ${imageAttrs(bannerSrc, "Valentine banner", { width: 1400, widths: [640, 960, 1400], sizes: "(max-width: 900px) 92vw, 780px" })}></figure>`
     : "";
   return `
     ${banner}
@@ -394,7 +437,7 @@ function letterBodyMarkup(item) {
   }).join("");
   const signatureSrc = String(item.signature || "").trim();
   const signature = signatureSrc
-    ? `<figure class="letter-signature"><img src="${signatureSrc}" alt="Carlos signature" loading="lazy"></figure>`
+    ? `<figure class="letter-signature"><img ${imageAttrs(signatureSrc, "Carlos signature", { width: 520, widths: [260, 420, 640], sizes: "min(60vw, 320px)" })}></figure>`
     : "";
   return `${markup}${signature}`;
 }
@@ -427,16 +470,13 @@ function itemBadge(item, index) {
    RENDER
    ============================================ */
 const grid = $("#grid");
-const q = $("#q");
 const countChip = $("#countChip");
 const hero = $("#hero");
 const heroCarousel = $("#heroCarousel");
 const heroSlides = $$("[data-hero-slide]", hero || document);
 const heroProgressSegments = $$("[data-progress-segment]", hero || document);
 const heroEnter = $("[data-hero-enter]", hero || document);
-const searchToggle = $("#searchToggle");
 const filterToggle = $("#filterToggle");
-const searchPanel = $("#searchPanel");
 const filterPanel = $("#filterPanel");
 const readProgress = $("#readProgress");
 const archiveMain = $("#archiveMain");
@@ -459,7 +499,7 @@ function entrySlug(item) {
 }
 
 function entryUrl(item) {
-  return `/letters/${entrySlug(item)}`;
+  return `#/letters/${entrySlug(item)}`;
 }
 
 function findEntryBySlug(slug) {
@@ -491,7 +531,7 @@ function buildTextCard(item, tagsMarkup) {
     <article class="${cardClass}" data-id="${item.id}" data-href="${entryUrl(item)}" data-type="${item.type}" data-tags="${(item.tags || []).join(",")}" tabindex="0" role="link" aria-label="${cardAria}">
       <span class="tag">${typeLabel}</span>
       <div class="content">
-        ${coverSrc ? `<figure class="card-hero"><img src="${coverSrc}" alt="" loading="lazy"></figure>` : ""}
+        ${coverSrc ? `<figure class="card-hero"><img ${imageAttrs(coverSrc, "", { width: 900, widths: [420, 720, 1000], sizes: "(max-width: 720px) 92vw, 360px" })}></figure>` : ""}
         <div class="card-head">
           <span class="card-head__label">${cardLabel}</span>
         </div>
@@ -525,7 +565,7 @@ function cardTemplate(item) {
     return `
       <article class="card card--media" data-id="${item.id}" data-href="${entryUrl(item)}" data-type="${item.type}" data-tags="${(item.tags || []).join(",")}" tabindex="0" role="link" aria-label="Open ${typeLabelLower} ${ariaTitle}">
         <span class="tag">${typeLabel}</span>
-        <img class="cover" src="${coverSrc}" alt="" loading="lazy">
+        <img class="cover" ${imageAttrs(coverSrc, "", { width: 1000, widths: [480, 768, 1200], sizes: "(max-width: 720px) 92vw, 340px" })}>
         ${item.type === "video" ? `<span class="media-play" aria-hidden="true">Play</span>` : ""}
         <div class="media-overlay">
           <div class="media-plate">
@@ -542,7 +582,7 @@ function cardTemplate(item) {
   return `
     <article class="card" data-id="${item.id}" data-href="${entryUrl(item)}" data-type="${item.type}" data-tags="${(item.tags || []).join(",")}" tabindex="0" role="link" aria-label="Open ${typeLabelLower} ${ariaTitle}">
       <span class="tag">${typeLabel}</span>
-      <img class="cover" src="${coverSrc}" alt="">
+      <img class="cover" ${imageAttrs(coverSrc, "", { loading: "", width: 900, widths: [480, 768, 1100], sizes: "(max-width: 720px) 92vw, 340px" })}>
       <div class="content">
         <h3 class="title">${safeTitle}</h3>
         <p class="meta">${meta}</p>
@@ -562,7 +602,7 @@ function collectionCardTemplate(item, index) {
   return `
     <article class="card collection-card" data-id="${item.id}" data-href="${entryUrl(item)}" data-type="${item.type}" data-tags="${(item.tags || []).join(",")}" tabindex="0" role="link" aria-label="${actionLabel} ${typeLabel.toLowerCase()} ${ariaTitle}">
       <figure class="collection-card__thumb">
-        ${coverSrc ? `<img src="${coverSrc}" alt="" loading="lazy">` : `<span aria-hidden="true">${typeLabel.slice(0, 1)}</span>`}
+        ${coverSrc ? `<img ${imageAttrs(coverSrc, "", { width: 700, widths: [360, 520, 760], sizes: "(max-width: 720px) 78vw, 240px" })}>` : `<span aria-hidden="true">${typeLabel.slice(0, 1)}</span>`}
         ${label ? `<span class="collection-card__badge">${label}</span>` : ""}
       </figure>
       <div class="collection-card__body">
@@ -582,7 +622,7 @@ function collectionSectionTemplate(collection, items) {
   const lead = sortedItems[0];
   const collectionImage = collection.image || lead?.cover || lead?.src;
   const style = collectionImage
-    ? ` style="--collection-image:url('${collectionImage}')"`
+    ? ` style="--collection-image:${backgroundImageValue(collectionImage)}"`
     : "";
 
   return `
@@ -616,7 +656,7 @@ function render(list) {
           <p class="empty__title">We still don’t have memories in this section</p>
           <p class="empty__text">Let’s make some!</p>
           <div class="empty__actions">
-            <button id="resetFilters" class="btn">Clear search & filters</button>
+            <button id="resetFilters" class="btn">Show all</button>
           </div>
         </div>
       </div>`;
@@ -641,21 +681,16 @@ function render(list) {
   });
 }
 
-function filterList() {
-  const needle = (q.value || "").toLowerCase();
-  const activeType = $$(".filter").find((button) => button.getAttribute("aria-pressed") === "true")?.dataset.type || "all";
-  const filtered = ENTRIES.filter((item) => {
-    const textBlob = [
-      item.title,
-      ...(item.tags || []),
-      item.caption || "",
-      item.text || ""
-    ].join(" ").toLowerCase();
-    const matchesText = !needle || textBlob.includes(needle);
-    const matchesType = activeType === "all" || item.type === activeType;
-    return matchesText && matchesType;
+function syncCategoryMenu() {
+  $$("[data-menu-target]").forEach((button) => {
+    const targetId = button.dataset.menuTarget;
+    if (targetId === "top") {
+      button.hidden = false;
+      return;
+    }
+    const collection = ARCHIVE_COLLECTIONS.find((item) => item.id === targetId);
+    button.hidden = !collection || !ENTRIES.some((entry) => collection.types.includes(entry.type));
   });
-  render(filtered);
 }
 
 function setHeroSlide(index) {
@@ -714,20 +749,18 @@ function setToolPanel(panel, toggle, isOpen) {
 }
 
 function closeToolPanels(except = null) {
-  if (except !== "search") setToolPanel(searchPanel, searchToggle, false);
   if (except !== "filter") setToolPanel(filterPanel, filterToggle, false);
 }
 
+function isAnyToolPanelOpen() {
+  return Boolean(filterPanel && !filterPanel.hidden);
+}
+
+function isHeaderToolClick(event) {
+  return Boolean(event.target.closest("#filterToggle, #filterPanel"));
+}
+
 function initHeaderTools() {
-  if (searchToggle && searchPanel) {
-    searchToggle.addEventListener("click", (event) => {
-      event.stopPropagation();
-      const willOpen = searchPanel.hidden;
-      closeToolPanels("search");
-      setToolPanel(searchPanel, searchToggle, willOpen);
-      if (willOpen) q?.focus();
-    });
-  }
   if (filterToggle && filterPanel) {
     filterToggle.addEventListener("click", (event) => {
       event.stopPropagation();
@@ -736,10 +769,12 @@ function initHeaderTools() {
       setToolPanel(filterPanel, filterToggle, willOpen);
     });
   }
-  [searchPanel, filterPanel].forEach((panel) => {
-    panel?.addEventListener("click", (event) => event.stopPropagation());
-  });
-  document.addEventListener("click", () => closeToolPanels());
+  filterPanel?.addEventListener("click", (event) => event.stopPropagation());
+  document.addEventListener("click", (event) => {
+    if (!isAnyToolPanelOpen() || isHeaderToolClick(event)) return;
+    closeToolPanels();
+    event.stopPropagation();
+  }, true);
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") closeToolPanels();
   });
@@ -767,18 +802,18 @@ function articleMarkup(item) {
   const label = item.type === "text" ? (isValentine ? "Valentine Letter" : "Letter") : tagLabel(item.type);
   const subtitle = isValentine ? `<p class="letter-subtitle">${item.subtitle || "Happy Valentine's Day"}</p>` : "";
   const media = item.type === "image"
-    ? `<figure class="article-media"><img src="${item.src}" alt="${item.caption || ""}">${item.caption ? `<figcaption>${item.caption}</figcaption>` : ""}</figure>`
+    ? `<figure class="article-media"><img ${imageAttrs(item.src, item.caption || "", { loading: "", width: 1600, widths: [640, 960, 1400, 1800], sizes: "(max-width: 900px) 92vw, 900px" })}>${item.caption ? `<figcaption>${item.caption}</figcaption>` : ""}</figure>`
     : item.type === "video"
       ? `<figure class="article-media"><video controls playsinline preload="metadata" src="${item.src}"></video>${item.caption ? `<figcaption>${item.caption}</figcaption>` : ""}</figure>`
       : item.type === "audio"
         ? `<div class="player article-player" role="group" aria-label="Audio controls"><button class="p-btn play" aria-label="Play">Play</button><div class="p-time"><span class="p-cur">0:00</span><div class="pbar"><div class="fill"></div></div><span class="p-dur">0:00</span></div></div><audio id="articleAudio" preload="metadata" src="${item.src}"></audio>`
         : "";
   const body = item.type === "text"
-    ? `${item.cover && !isValentine ? `<figure class="article-media article-hero"><img src="${item.cover}" alt="" loading="lazy"></figure>` : ""}<div class="letter-body${isValentine ? " letter-body--valentine" : ""}">${letterBodyMarkup(item)}</div>`
+    ? `${item.cover && !isValentine ? `<figure class="article-media article-hero"><img ${imageAttrs(item.cover, "", { width: 1400, widths: [640, 960, 1400], sizes: "(max-width: 900px) 92vw, 820px" })}></figure>` : ""}<div class="letter-body${isValentine ? " letter-body--valentine" : ""}">${letterBodyMarkup(item)}</div>`
     : media;
 
   return `
-    <nav class="article-nav"><a href="/" data-route="archive">&larr; Back to archive</a></nav>
+    <nav class="article-nav"><a href="#/" data-route="archive">&larr; Back to archive</a></nav>
     <article class="letter article-letter${isValentine ? " letter--valentine" : ""}">
       <header class="letter-header">
         <span class="letter-label">${label}</span>
@@ -805,7 +840,8 @@ function showArticle(item) {
 }
 
 function renderRoute() {
-  const match = location.pathname.match(/^\/letters\/([^/]+)\/?$/);
+  const route = location.hash.replace(/^#/, "") || location.pathname;
+  const match = route.match(/^\/letters\/([^/]+)\/?$/);
   if (!match) {
     showArchive();
     return;
@@ -814,7 +850,7 @@ function renderRoute() {
   if (item) {
     showArticle(item);
   } else {
-    history.replaceState(null, "", "/");
+    history.replaceState(null, "", "#/");
     showArchive();
   }
 }
@@ -826,9 +862,7 @@ function navigateTo(item) {
 
 grid.addEventListener("click", (event) => {
   if (event.target.id === "resetFilters") {
-    q.value = "";
-    $$(".filter").forEach((button) => button.setAttribute("aria-pressed", button.dataset.type === "all" ? "true" : "false"));
-    filterList();
+    render(ENTRIES);
     return;
   }
   const collectionButton = event.target.closest("[data-scroll-collection]");
@@ -873,11 +907,12 @@ document.addEventListener("click", (event) => {
   const archiveLink = event.target.closest("[data-route='archive']");
   if (!archiveLink) return;
   event.preventDefault();
-  history.pushState(null, "", "/");
+  history.pushState(null, "", "#/");
   renderRoute();
 });
 
 window.addEventListener("popstate", renderRoute);
+window.addEventListener("hashchange", renderRoute);
 
 /* ============================================
    MODAL + CONTENT TYPES
@@ -941,9 +976,9 @@ function openModal(item, options = {}) {
     modalBody.innerHTML = `
       <figure class="media-frame image-frame">
         <button class="image-back" type="button" aria-label="Back">Back</button>
-        <img src="${item.src}" alt="${item.caption || ""}" role="button" tabindex="0" aria-label="View image fullscreen">
+        <img ${imageAttrs(item.src, item.caption || "", { loading: "", width: 1800, widths: [720, 1100, 1600, 2200], sizes: "100vw", extra: 'role="button" tabindex="0" aria-label="View image fullscreen"' })}>
       </figure>`;
-    modalFoot.innerHTML = `${metaInfo ? `<span class="meta">${metaInfo}</span>` : ""}<a class="btn" href="${item.src}" download>Download</a>`;
+    modalFoot.innerHTML = `${metaInfo ? `<span class="meta">${metaInfo}</span>` : ""}<a class="btn" href="${optimizedCloudinaryImage(item.src, 2200)}" download>Download</a>`;
     const frame = $(".image-frame", modalBody);
     const back = $(".image-back", modalBody);
     const img = frame ? $("img", frame) : null;
@@ -1323,9 +1358,6 @@ miniBar.addEventListener("click", (event) => {
    ============================================ */
 function applyTagFilter(tag) {
   if (!tag) return;
-  q.value = tag;
-  $$(".filter").forEach((button) => button.setAttribute("aria-pressed", button.dataset.type === "all" ? "true" : "false"));
-  filterList();
   if (hero) {
     hero.scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -1340,13 +1372,15 @@ modalFoot.addEventListener("click", (event) => {
 });
 
 /* ============================================
-   SEARCH + FILTERS
+   FILTERS
    ============================================ */
-q.addEventListener("input", filterList);
-$$(".filter").forEach((button) => button.addEventListener("click", () => {
-  $$(".filter").forEach((other) => other.setAttribute("aria-pressed", "false"));
-  button.setAttribute("aria-pressed", "true");
-  filterList();
+$$("[data-menu-target]").forEach((button) => button.addEventListener("click", () => {
+  const targetId = button.dataset.menuTarget;
+  window.requestAnimationFrame(() => {
+    const target = targetId === "top" ? archiveMain : $(`#carousel-${targetId}`, grid);
+    target?.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "start" });
+  });
+  closeToolPanels();
 }));
 
 /* ============================================
@@ -1475,7 +1509,8 @@ if (birthdayPopup) {
 }
 
 function initApp() {
-  filterList();
+  syncCategoryMenu();
+  render(ENTRIES);
   initHeroCarousel();
   initHeaderTools();
   renderRoute();

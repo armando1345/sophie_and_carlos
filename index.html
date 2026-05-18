@@ -48,39 +48,27 @@
           </svg>
         </div>
         <div>
-          <h1>Sophie &amp; Carlos</h1>
+          <h1 aria-label="Sophie and Carlos">
+            <span class="brand-name-full" aria-hidden="true">Sophie &amp; Carlos</span>
+            <span class="brand-name-short" aria-hidden="true">S &amp; C</span>
+          </h1>
         </div>
       </div>
       <div class="head-right">
-        <button class="icon-action" type="button" id="searchToggle" aria-label="Search archive" aria-expanded="false" aria-controls="searchPanel">
+        <button class="icon-action" type="button" id="filterToggle" aria-label="Open category menu" aria-expanded="false" aria-controls="filterPanel">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="11" cy="11" r="8"/>
-            <path d="m21 21-3.5-3.5"/>
+            <path d="M4 6h16"/>
+            <path d="M4 12h16"/>
+            <path d="M4 18h16"/>
           </svg>
         </button>
-        <button class="icon-action" type="button" id="filterToggle" aria-label="Filter archive" aria-expanded="false" aria-controls="filterPanel">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M3 5h18"/>
-            <path d="M6 12h12"/>
-            <path d="M10 19h4"/>
-          </svg>
-        </button>
-        <div class="tool-popover tool-popover--search" id="searchPanel" hidden>
-          <label class="search">
-            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="11" cy="11" r="8"/>
-              <path d="m21 21-3.5-3.5"/>
-            </svg>
-            <input id="q" type="search" placeholder="Search memories..." autocomplete="off" aria-label="Search" />
-          </label>
-        </div>
         <div class="tool-popover tool-popover--filters" id="filterPanel" hidden>
-          <div class="filters" role="group" aria-label="Filters">
-            <button class="filter" data-type="all" aria-pressed="true">All</button>
-            <button class="filter" data-type="text">Letters</button>
-            <button class="filter" data-type="image">Images</button>
-            <button class="filter" data-type="audio">Audio</button>
-            <button class="filter" data-type="video">Videos</button>
+          <div class="filters" role="menu" aria-label="Categories">
+            <button class="filter" type="button" role="menuitem" data-menu-target="top">All</button>
+            <button class="filter" type="button" role="menuitem" data-menu-target="letters">Letters</button>
+            <button class="filter" type="button" role="menuitem" data-menu-target="images">Images</button>
+            <button class="filter" type="button" role="menuitem" data-menu-target="audio" hidden>Audio</button>
+            <button class="filter" type="button" role="menuitem" data-menu-target="videos">Videos</button>
           </div>
         </div>
       </div>
@@ -88,17 +76,17 @@
 
     <section class="hero" id="hero" aria-label="Welcome carousel">
       <div class="hero-carousel" id="heroCarousel" tabindex="0">
-        <article class="hero-slide is-active" style="--hero-image:url('fondo_welcome_to_our_album.png')" data-hero-slide>
+        <article class="hero-slide is-active" style="--hero-image:url('fondo_welcome_to_our_album.webp')" data-hero-slide>
           <div class="hero-copy">
             <h2>Welcome to our album, my love!</h2>
           </div>
         </article>
-        <article class="hero-slide" style="--hero-image:url('fondo_como_cajon_que_no_cierra.png')" data-hero-slide>
+        <article class="hero-slide" style="--hero-image:url('fondo_como_cajon_que_no_cierra.webp')" data-hero-slide>
           <div class="hero-copy">
             <h2>Como cajón que no cierra... 😏</h2>
           </div>
         </article>
-        <article class="hero-slide" style="--hero-image:url('https://res.cloudinary.com/dul66qlpq/image/upload/v1767224560/2026_nl0suo.png')" data-hero-slide>
+        <article class="hero-slide" style="--hero-image:url('https://res.cloudinary.com/dul66qlpq/image/upload/f_auto,q_auto,w_1600/v1767224560/2026_nl0suo.png')" data-hero-slide>
           <div class="hero-copy">
             <h2>Together forever!</h2>
           </div>
