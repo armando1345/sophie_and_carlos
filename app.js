@@ -1,7 +1,102 @@
-/* ============================================
+﻿/* ============================================
    CONTENT (replace with your real material)
    ============================================ */
 const ENTRIES = [
+  {
+    id: "letter_sophie_poem",
+    type: "text",
+    title: "Sophie 😘🫂❤️♾️",
+    teaser: "Te hallé en palabras sin tocarte, amor, el alma reconoce lo que es suyo.",
+    date: "2026-03-19",
+    cover: "https://res.cloudinary.com/dul66qlpq/image/upload/v1779123343/the_bst_girl_riqumo.png",
+    signature: "https://res.cloudinary.com/dul66qlpq/image/upload/v1772604178/firma_gytrqt.png",
+    text: `Sophie 😘🫂❤️♾️
+
+Te hallé en palabras sin tocarte, amor, 
+el alma reconoce lo que es suyo, 
+como la tierra sabe de la flor 
+y el río sabe dónde va su arruyo.
+
+Llegaste como llega la mañana, 
+sin pedir permiso, sin tocar la puerta, 
+con olor a pan tibio y a ventana 
+recién abierta cuando el mundo despierta.
+
+El pájaro le canta al árbol frío, 
+el árbol amanece con su vuelo, 
+así tú, Sophie, me llenas de albedrío, 
+y soy más cielo cuando eres mi suelo.
+
+La brisa que te roza allá en tu tierra 
+me llega aquí como un rumor salado, 
+la misma luna que tu noche encierra 
+me alumbra el pecho de este lado.
+
+Tu café lo preparo cada día, 
+lo imagino humeando en tu tazón, 
+el aroma me envuelve y me desvía 
+hacia el rincón más dulce del salón.
+
+Y yo con mi infusión alzo la copa, 
+la hierba suelta su vapor sagrado, 
+me abriga como abriga nueva ropa 
+en el invierno más desamparado. 
+
+Hemos cruzado tempestades fieras, 
+con la piel empapada alzamos vuelo, 
+mordimos barro, atravesamos eras, 
+y aquí seguimos, juntos, bajo un cielo. 
+
+Recuerdo noches de palabras rotas, 
+el silencio pesando como piedra, 
+las manos apretando aquellas notas 
+que el viento no arrancó como a la hiedra. 
+
+El amor no cedió ni una pulgada, 
+cada herida nos hizo más certeros, 
+la tormenta dejó la piel mojada 
+pero los huesos firmes y más fieros. 
+
+De la espera más honda hice morada, 
+aprendí la paciencia del que siembra, 
+la semilla no entiende de alborada 
+pero revienta en flor cuando recuerda. 
+
+Pienso en los días que iremos tejiendo, 
+pienso en la lluvia que vendrá a caer, 
+pienso en tu mano cuando esté lloviendo, 
+pienso en tu voz para amanecer. 
+
+Pienso en tu risa abriendo la mañana, 
+pienso en tus ojos contra el sol de enero, 
+pienso en tu piel con olor a tierra sana, 
+pienso en morderte el labio por entero. 
+
+No te quiero perfecta ni lejana, 
+te quiero aquí, descalza, con todo dentro, 
+compañera del pan de cada mañana, 
+latido que responde a mi latido adentro. 
+
+Te amo con tus lunes y tu sueño, 
+con tu cabello libre y destrenzado, 
+te quiero como el agua quiere al leño, 
+como la sal se aferra a lo salado. 
+
+Este año el tiempo cumple su promesa, 
+y el fruto que sembré ya está en mi mano, 
+no llego a ti con miedo, 
+llego a esa vida que pide ser humana. 
+
+Ya puedo casi oír la puerta abierta, 
+sentir el suelo tibio bajo el paso, 
+la luz cayendo sobre tu silueta 
+como cae la tarde sobre el ocaso. 
+
+La puerta que soñamos está abierta, 
+lo que la sangre supo, confirmado, 
+te voy a ver, querida, y en esa puerta 
+estaré entero, vivo y enamorado.`
+  },
   {
     id: "letter_valentine_kiss",
     type: "text",
@@ -92,6 +187,44 @@ const TYPE_LABELS = {
   audio: "AUDIO",
   video: "VIDEO"
 };
+
+const ARCHIVE_COLLECTIONS = [
+  {
+    id: "letters",
+    title: "Letters",
+    phrase: "Words that keep us close, even when the map insists otherwise.",
+    cta: "Read Collection",
+    types: ["text"],
+    tone: "wine",
+    image: "fondo_letters.png"
+  },
+  {
+    id: "images",
+    title: "Images",
+    phrase: "Small scenes where our future already starts to look visible.",
+    cta: "View Collection",
+    types: ["image"],
+    tone: "porcelain",
+    image: "fondo_fotos.png"
+  },
+  {
+    id: "audio",
+    title: "Audio",
+    phrase: "Voices, pauses and little traces of presence saved for later.",
+    cta: "Listen to Collection",
+    types: ["audio"],
+    tone: "mauve"
+  },
+  {
+    id: "videos",
+    title: "Videos",
+    phrase: "Movement, tenderness and the imperfect magic we keep making.",
+    cta: "View Collection",
+    types: ["video"],
+    tone: "mahogany",
+    image: "fondo_videos.png"
+  }
+];
 
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 let activeVideo = null;
@@ -250,7 +383,7 @@ function letterBodyMarkup(item) {
   const body = letterBodyText(item);
   if (!body) return "";
   const blocks = body.split(/\n{2,}/).map((block) => block.trim()).filter(Boolean);
-  return blocks.map((block) => {
+  const markup = blocks.map((block) => {
     const lines = block.split(/\n/).map((line) => line.trim()).filter(Boolean);
     const isList = lines.every((line) => /^[-\u2022]/.test(line));
     if (isList) {
@@ -259,6 +392,11 @@ function letterBodyMarkup(item) {
     }
     return `<p>${lines.join("<br>")}</p>`;
   }).join("");
+  const signatureSrc = String(item.signature || "").trim();
+  const signature = signatureSrc
+    ? `<figure class="letter-signature"><img src="${signatureSrc}" alt="Carlos signature" loading="lazy"></figure>`
+    : "";
+  return `${markup}${signature}`;
 }
 function createTagPills(tags = []) {
   if (!tags.length) return "";
@@ -269,6 +407,22 @@ function tagLabel(type) {
   return TYPE_LABELS[type] || "MEMORY";
 }
 
+function collectionForItem(item) {
+  return ARCHIVE_COLLECTIONS.find((collection) => collection.types.includes(item.type));
+}
+
+function itemSummary(item) {
+  const source = item.teaser || item.caption || item.subtitle || item.notes || letterBodyText(item);
+  const clean = String(source || "A saved piece of our private archive.").replace(/\s+/g, " ").trim();
+  return clean.length > 118 ? `${clean.slice(0, 115).trim()}...` : clean;
+}
+
+function itemBadge(item, index) {
+  if (isValentineLetter(item)) return "Featured";
+  if (index === 0) return "New";
+  return "";
+}
+
 /* ============================================
    RENDER
    ============================================ */
@@ -276,7 +430,41 @@ const grid = $("#grid");
 const q = $("#q");
 const countChip = $("#countChip");
 const hero = $("#hero");
+const heroCarousel = $("#heroCarousel");
+const heroSlides = $$("[data-hero-slide]", hero || document);
+const heroProgressSegments = $$("[data-progress-segment]", hero || document);
+const heroEnter = $("[data-hero-enter]", hero || document);
+const searchToggle = $("#searchToggle");
+const filterToggle = $("#filterToggle");
+const searchPanel = $("#searchPanel");
+const filterPanel = $("#filterPanel");
 const readProgress = $("#readProgress");
+const archiveMain = $("#archiveMain");
+const articleMain = $("#articleMain");
+let heroActiveIndex = 0;
+let heroAutoTimer = null;
+const HERO_AUTO_DELAY = 5000;
+
+function slugify(value) {
+  return String(value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "entry";
+}
+
+function entrySlug(item) {
+  return slugify(item.title || item.id);
+}
+
+function entryUrl(item) {
+  return `/letters/${entrySlug(item)}`;
+}
+
+function findEntryBySlug(slug) {
+  return ENTRIES.find((entry) => entrySlug(entry) === slug);
+}
 
 function buildTextCard(item, tagsMarkup) {
   const typeLabel = tagLabel(item.type);
@@ -300,7 +488,7 @@ function buildTextCard(item, tagsMarkup) {
         ${teaser ? `<p class="card-love-teaser">${teaser}</p>` : ""}` : "";
 
   return `
-    <article class="${cardClass}" data-id="${item.id}" data-type="${item.type}" data-tags="${(item.tags || []).join(",")}" tabindex="0" role="button" aria-label="${cardAria}">
+    <article class="${cardClass}" data-id="${item.id}" data-href="${entryUrl(item)}" data-type="${item.type}" data-tags="${(item.tags || []).join(",")}" tabindex="0" role="link" aria-label="${cardAria}">
       <span class="tag">${typeLabel}</span>
       <div class="content">
         ${coverSrc ? `<figure class="card-hero"><img src="${coverSrc}" alt="" loading="lazy"></figure>` : ""}
@@ -335,7 +523,7 @@ function cardTemplate(item) {
 
   if (isVisual) {
     return `
-      <article class="card card--media" data-id="${item.id}" data-type="${item.type}" data-tags="${(item.tags || []).join(",")}" tabindex="0" role="button" aria-label="Open ${typeLabelLower} ${ariaTitle}">
+      <article class="card card--media" data-id="${item.id}" data-href="${entryUrl(item)}" data-type="${item.type}" data-tags="${(item.tags || []).join(",")}" tabindex="0" role="link" aria-label="Open ${typeLabelLower} ${ariaTitle}">
         <span class="tag">${typeLabel}</span>
         <img class="cover" src="${coverSrc}" alt="" loading="lazy">
         ${item.type === "video" ? `<span class="media-play" aria-hidden="true">Play</span>` : ""}
@@ -352,7 +540,7 @@ function cardTemplate(item) {
   const meta = `${fmtDate(item.date)}${item.tags && item.tags.length ? ` &bull; ${(item.tags || []).join(" &bull; ")}` : ""}`;
 
   return `
-    <article class="card" data-id="${item.id}" data-type="${item.type}" data-tags="${(item.tags || []).join(",")}" tabindex="0" role="button" aria-label="Open ${typeLabelLower} ${ariaTitle}">
+    <article class="card" data-id="${item.id}" data-href="${entryUrl(item)}" data-type="${item.type}" data-tags="${(item.tags || []).join(",")}" tabindex="0" role="link" aria-label="Open ${typeLabelLower} ${ariaTitle}">
       <span class="tag">${typeLabel}</span>
       <img class="cover" src="${coverSrc}" alt="">
       <div class="content">
@@ -362,11 +550,66 @@ function cardTemplate(item) {
     </article>`;
 }
 
+function collectionCardTemplate(item, index) {
+  const safeTitle = String(item.title || "");
+  const ariaTitle = safeTitle.replace(/"/g, "&quot;");
+  const coverSrc = item.cover || item.src || "";
+  const label = itemBadge(item, index);
+  const typeLabel = item.type === "text" ? (isValentineLetter(item) ? "Valentine Letter" : "Letter") : tagLabel(item.type);
+  const actionLabel = item.type === "text" ? "Read" : item.type === "audio" ? "Listen" : "View";
+  const dateLabel = item.date ? fmtDate(item.date) : "";
+
+  return `
+    <article class="card collection-card" data-id="${item.id}" data-href="${entryUrl(item)}" data-type="${item.type}" data-tags="${(item.tags || []).join(",")}" tabindex="0" role="link" aria-label="${actionLabel} ${typeLabel.toLowerCase()} ${ariaTitle}">
+      <figure class="collection-card__thumb">
+        ${coverSrc ? `<img src="${coverSrc}" alt="" loading="lazy">` : `<span aria-hidden="true">${typeLabel.slice(0, 1)}</span>`}
+        ${label ? `<span class="collection-card__badge">${label}</span>` : ""}
+      </figure>
+      <div class="collection-card__body">
+        <span class="collection-card__type">${typeLabel}</span>
+        <h3 class="collection-card__title">${safeTitle}</h3>
+        <p class="collection-card__summary">${itemSummary(item)}</p>
+        <div class="collection-card__foot">
+          ${dateLabel ? `<time datetime="${item.date}">${dateLabel}</time>` : "<span></span>"}
+          <span class="collection-card__read" aria-hidden="true">${actionLabel}</span>
+        </div>
+      </div>
+    </article>`;
+}
+
+function collectionSectionTemplate(collection, items) {
+  const sortedItems = [...items].sort(byNew);
+  const lead = sortedItems[0];
+  const collectionImage = collection.image || lead?.cover || lead?.src;
+  const style = collectionImage
+    ? ` style="--collection-image:url('${collectionImage}')"`
+    : "";
+
+  return `
+    <section class="archive-collection archive-collection--${collection.tone}" aria-labelledby="collection-${collection.id}"${style}>
+      <div class="collection-hero">
+        <div class="collection-hero__inner">
+          <h2 id="collection-${collection.id}">${collection.title}</h2>
+          <p>${collection.phrase}</p>
+          <button class="collection-hero__cta" type="button" data-scroll-collection="${collection.id}">${collection.cta}</button>
+        </div>
+      </div>
+      <div class="collection-carousel-wrap" id="carousel-${collection.id}">
+        <div class="collection-carousel" aria-label="${collection.title} carousel">
+          ${sortedItems.map(collectionCardTemplate).join("")}
+        </div>
+      </div>
+    </section>`;
+}
+
 function render(list) {
   const sorted = [...list].sort(byNew);
   const count = sorted.length;
-  countChip.textContent = `${count} ${count === 1 ? "memory" : "memories"}`;
+  if (countChip) {
+    countChip.textContent = `${count} ${count === 1 ? "memory" : "memories"}`;
+  }
   if (!count) {
+    grid.classList.remove("archive-collections");
     grid.innerHTML = `
       <div class="empty">
         <div class="empty__body">
@@ -374,13 +617,23 @@ function render(list) {
           <p class="empty__text">Let’s make some!</p>
           <div class="empty__actions">
             <button id="resetFilters" class="btn">Clear search & filters</button>
-            <button id="surpriseGrid" class="btn btn-ghost">Surprise us</button>
           </div>
         </div>
       </div>`;
     return;
   }
-  grid.innerHTML = sorted.map(cardTemplate).join("");
+  grid.classList.add("archive-collections");
+  const collections = ARCHIVE_COLLECTIONS
+    .map((collection) => ({
+      ...collection,
+      items: sorted.filter((item) => collection.types.includes(item.type))
+    }))
+    .filter((collection) => collection.items.length);
+  const uncategorized = sorted.filter((item) => !collectionForItem(item));
+  grid.innerHTML = [
+    ...collections.map((collection) => collectionSectionTemplate(collection, collection.items)),
+    ...uncategorized.map(cardTemplate)
+  ].join("");
   $$(".card", grid).forEach((card) => {
     card.classList.add("card-pop");
     card.style.animationDelay = `${Math.random() * 0.08 + 0.02}s`;
@@ -405,8 +658,170 @@ function filterList() {
   render(filtered);
 }
 
+function setHeroSlide(index) {
+  if (!heroSlides.length) return;
+  const safeIndex = (index + heroSlides.length) % heroSlides.length;
+  heroActiveIndex = safeIndex;
+  heroSlides.forEach((slide, slideIndex) => {
+    slide.classList.toggle("is-active", slideIndex === safeIndex);
+  });
+  heroProgressSegments.forEach((segment, segmentIndex) => {
+    segment.classList.toggle("is-active", segmentIndex <= safeIndex);
+  });
+}
+
+function restartHeroAutoRotation() {
+  if (!heroCarousel || heroSlides.length < 2 || prefersReducedMotion) return;
+  window.clearInterval(heroAutoTimer);
+  heroAutoTimer = window.setInterval(() => {
+    setHeroSlide(heroActiveIndex + 1);
+  }, HERO_AUTO_DELAY);
+}
+
+function initHeroCarousel() {
+  if (!heroCarousel || !heroSlides.length) return;
+  setHeroSlide(0);
+  restartHeroAutoRotation();
+  heroCarousel.addEventListener("click", (event) => {
+    if (event.target.closest("button, a, input")) return;
+    setHeroSlide(heroActiveIndex + 1);
+    restartHeroAutoRotation();
+  });
+  heroCarousel.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " " || event.key === "ArrowRight") {
+      event.preventDefault();
+      setHeroSlide(heroActiveIndex + 1);
+      restartHeroAutoRotation();
+    }
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      setHeroSlide(heroActiveIndex - 1);
+      restartHeroAutoRotation();
+    }
+  });
+  if (heroEnter) {
+    heroEnter.addEventListener("click", () => {
+      archiveMain?.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "start" });
+    });
+  }
+}
+
+function setToolPanel(panel, toggle, isOpen) {
+  if (!panel || !toggle) return;
+  panel.hidden = !isOpen;
+  toggle.setAttribute("aria-expanded", String(isOpen));
+  toggle.classList.toggle("is-active", isOpen);
+}
+
+function closeToolPanels(except = null) {
+  if (except !== "search") setToolPanel(searchPanel, searchToggle, false);
+  if (except !== "filter") setToolPanel(filterPanel, filterToggle, false);
+}
+
+function initHeaderTools() {
+  if (searchToggle && searchPanel) {
+    searchToggle.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const willOpen = searchPanel.hidden;
+      closeToolPanels("search");
+      setToolPanel(searchPanel, searchToggle, willOpen);
+      if (willOpen) q?.focus();
+    });
+  }
+  if (filterToggle && filterPanel) {
+    filterToggle.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const willOpen = filterPanel.hidden;
+      closeToolPanels("filter");
+      setToolPanel(filterPanel, filterToggle, willOpen);
+    });
+  }
+  [searchPanel, filterPanel].forEach((panel) => {
+    panel?.addEventListener("click", (event) => event.stopPropagation());
+  });
+  document.addEventListener("click", () => closeToolPanels());
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeToolPanels();
+  });
+}
+
 function findEntry(id) {
   return ENTRIES.find((entry) => entry.id === id);
+}
+
+function showArchive() {
+  document.body.classList.remove("article-route");
+  if (hero) hero.hidden = false;
+  if (archiveMain) archiveMain.hidden = false;
+  if (articleMain) {
+    articleMain.hidden = true;
+    articleMain.innerHTML = "";
+  }
+  if (countChip) countChip.hidden = false;
+}
+
+function articleMarkup(item) {
+  const dateISO = item.date || "";
+  const dateLabel = item.date ? fmtDate(item.date) : "";
+  const isValentine = isValentineLetter(item);
+  const label = item.type === "text" ? (isValentine ? "Valentine Letter" : "Letter") : tagLabel(item.type);
+  const subtitle = isValentine ? `<p class="letter-subtitle">${item.subtitle || "Happy Valentine's Day"}</p>` : "";
+  const media = item.type === "image"
+    ? `<figure class="article-media"><img src="${item.src}" alt="${item.caption || ""}">${item.caption ? `<figcaption>${item.caption}</figcaption>` : ""}</figure>`
+    : item.type === "video"
+      ? `<figure class="article-media"><video controls playsinline preload="metadata" src="${item.src}"></video>${item.caption ? `<figcaption>${item.caption}</figcaption>` : ""}</figure>`
+      : item.type === "audio"
+        ? `<div class="player article-player" role="group" aria-label="Audio controls"><button class="p-btn play" aria-label="Play">Play</button><div class="p-time"><span class="p-cur">0:00</span><div class="pbar"><div class="fill"></div></div><span class="p-dur">0:00</span></div></div><audio id="articleAudio" preload="metadata" src="${item.src}"></audio>`
+        : "";
+  const body = item.type === "text"
+    ? `${item.cover && !isValentine ? `<figure class="article-media article-hero"><img src="${item.cover}" alt="" loading="lazy"></figure>` : ""}<div class="letter-body${isValentine ? " letter-body--valentine" : ""}">${letterBodyMarkup(item)}</div>`
+    : media;
+
+  return `
+    <nav class="article-nav"><a href="/" data-route="archive">&larr; Back to archive</a></nav>
+    <article class="letter article-letter${isValentine ? " letter--valentine" : ""}">
+      <header class="letter-header">
+        <span class="letter-label">${label}</span>
+        ${dateLabel ? `<time class="letter-date" datetime="${dateISO}">${dateLabel}</time>` : ""}
+        <h1 class="letter-title">${item.title || ""}</h1>
+        ${subtitle}
+      </header>
+      ${body}
+    </article>`;
+}
+
+function showArticle(item) {
+  document.body.classList.add("article-route");
+  if (hero) hero.hidden = true;
+  if (archiveMain) archiveMain.hidden = true;
+  if (countChip) countChip.hidden = true;
+  if (!articleMain) return;
+  articleMain.hidden = false;
+  articleMain.innerHTML = articleMarkup(item);
+  const audio = $("#articleAudio", articleMain);
+  const player = $(".article-player", articleMain);
+  if (audio && player) bindPlayer(audio, player, item);
+  window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+}
+
+function renderRoute() {
+  const match = location.pathname.match(/^\/letters\/([^/]+)\/?$/);
+  if (!match) {
+    showArchive();
+    return;
+  }
+  const item = findEntryBySlug(match[1]);
+  if (item) {
+    showArticle(item);
+  } else {
+    history.replaceState(null, "", "/");
+    showArchive();
+  }
+}
+
+function navigateTo(item) {
+  history.pushState(null, "", entryUrl(item));
+  renderRoute();
 }
 
 grid.addEventListener("click", (event) => {
@@ -416,8 +831,10 @@ grid.addEventListener("click", (event) => {
     filterList();
     return;
   }
-  if (event.target.id === "surpriseGrid") {
-    surpriseUs();
+  const collectionButton = event.target.closest("[data-scroll-collection]");
+  if (collectionButton) {
+    const target = $(`#carousel-${collectionButton.dataset.scrollCollection}`, grid);
+    if (target) target.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "start" });
     return;
   }
   const tagButton = event.target.closest(".pill--tag");
@@ -430,8 +847,7 @@ grid.addEventListener("click", (event) => {
   if (!card) return;
   const item = findEntry(card.dataset.id);
   if (item) {
-    const rect = card.getBoundingClientRect();
-    openModal(item, { origin: { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 } });
+    navigateTo(item);
   }
 });
 
@@ -449,10 +865,19 @@ grid.addEventListener("keydown", (event) => {
   const item = findEntry(card.dataset.id);
   if (item) {
     event.preventDefault();
-    const rect = card.getBoundingClientRect();
-    openModal(item, { origin: { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 } });
+    navigateTo(item);
   }
 });
+
+document.addEventListener("click", (event) => {
+  const archiveLink = event.target.closest("[data-route='archive']");
+  if (!archiveLink) return;
+  event.preventDefault();
+  history.pushState(null, "", "/");
+  renderRoute();
+});
+
+window.addEventListener("popstate", renderRoute);
 
 /* ============================================
    MODAL + CONTENT TYPES
@@ -894,7 +1319,7 @@ miniBar.addEventListener("click", (event) => {
 });
 
 /* ============================================
-   TAG SHORTCUTS + SURPRISE
+   TAG SHORTCUTS
    ============================================ */
 function applyTagFilter(tag) {
   if (!tag) return;
@@ -907,31 +1332,12 @@ function applyTagFilter(tag) {
   closeModal();
 }
 
-function randomEntry() {
-  if (!ENTRIES.length) return null;
-  const idx = Math.floor(Math.random() * ENTRIES.length);
-  return ENTRIES[idx];
-}
-
-function surpriseUs() {
-  const pick = randomEntry();
-  if (pick) {
-    const origin = { x: window.innerWidth / 2, y: window.innerHeight - 40 };
-    openModal(pick, { origin });
-  }
-}
-
 modalFoot.addEventListener("click", (event) => {
   const tagButton = event.target.closest(".pill--tag");
   if (tagButton) {
     applyTagFilter(tagButton.dataset.tag);
   }
 });
-
-const randomBtn = $("#randomBtn");
-if (randomBtn) {
-  randomBtn.addEventListener("click", surpriseUs);
-}
 
 /* ============================================
    SEARCH + FILTERS
@@ -971,6 +1377,39 @@ function showGate() {
   if (pass) pass.focus();
 }
 
+const birthdayPopup = $("#birthdayPopup");
+const birthdayClose = $("#birthdayClose");
+const birthdayContinue = $("#birthdayContinue");
+let birthdayLastFocusedElement = null;
+
+function isBirthdayToday(date = new Date()) {
+  return date.getMonth() === 4 && date.getDate() === 18;
+}
+
+function openBirthdayPopup() {
+  if (!birthdayPopup || !isBirthdayToday()) return;
+  birthdayLastFocusedElement = document.activeElement;
+  birthdayPopup.hidden = false;
+  birthdayPopup.removeAttribute("hidden");
+  birthdayPopup.classList.add("show");
+  document.body.classList.add("modal-open");
+  requestAnimationFrame(() => {
+    const focusTarget = birthdayContinue || birthdayClose;
+    if (focusTarget) focusTarget.focus();
+  });
+}
+
+function closeBirthdayPopup() {
+  if (!birthdayPopup) return;
+  birthdayPopup.classList.remove("show");
+  document.body.classList.remove("modal-open");
+  birthdayPopup.hidden = true;
+  birthdayPopup.setAttribute("hidden", "");
+  if (birthdayLastFocusedElement && typeof birthdayLastFocusedElement.focus === "function") {
+    birthdayLastFocusedElement.focus();
+  }
+}
+
 enter.addEventListener("click", () => {
   const input = pass.value.trim();
   if (!input) {
@@ -986,6 +1425,7 @@ enter.addEventListener("click", () => {
     pass.value = "";
     setGateMessage("");
     setTimeout(() => enter.classList.remove("gate-enter--success"), 600);
+    setTimeout(openBirthdayPopup, 320);
   } else {
     setGateMessage("Wrong key. Try again.", "error");
     pass.select();
@@ -999,7 +1439,51 @@ pass.addEventListener("keydown", (event) => {
   }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
+if (birthdayClose) {
+  birthdayClose.addEventListener("click", closeBirthdayPopup);
+}
+
+if (birthdayContinue) {
+  birthdayContinue.addEventListener("click", closeBirthdayPopup);
+}
+
+if (birthdayPopup) {
+  birthdayPopup.addEventListener("click", (event) => {
+    if (event.target === birthdayPopup) {
+      closeBirthdayPopup();
+    }
+  });
+
+  birthdayPopup.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeBirthdayPopup();
+      return;
+    }
+    if (event.key !== "Tab") return;
+    const focusables = Array.from(birthdayPopup.querySelectorAll(FOCUSABLE_SELECTOR)).filter((el) => !el.disabled && el.offsetParent !== null);
+    if (!focusables.length) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+}
+
+function initApp() {
   filterList();
+  initHeroCarousel();
+  initHeaderTools();
+  renderRoute();
   showGate();
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initApp, { once: true });
+} else {
+  initApp();
+}

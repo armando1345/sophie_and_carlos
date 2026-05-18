@@ -1,35 +1,41 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Sophie &amp; Carlos</title>
-  <meta name="description" content="A private corner to keep our letters, photos, audios and videos." />
+  <meta name="description" content="A place to save our memories." />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&amp;family=Nunito:wght@400;600;800;900&amp;display=swap" rel="stylesheet">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 56C12 44 6 28 16 20s18 5 16 8 8-12 16-8 4 24-16 36Z' fill='%23FF7DA3'/%3E%3C/svg%3E"/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&amp;family=Gloock&amp;display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 56C12 44 6 28 16 20s18 5 16 8 8-12 16-8 4 24-16 36Z' fill='%23800e13'/%3E%3C/svg%3E"/>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="noise" aria-hidden="true"></div>
 
   <div id="gate" class="gate" hidden>
-    <div class="gate-card">
-      <svg class="logomark" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-        <path d="M32 56C12 44 6 28 16 20s18 5 16 8 8-12 16-8 4 24-16 36Z" fill="#FF7DA3"/>
-      </svg>
-      <h2>Our album</h2>
-      <p>Enter our shared key to open it.</p>
-      <input id="pass" type="password" placeholder="Enter our shared key" aria-label="Password"/>
-      <div class="gate-actions">
-        <button id="enter" class="gate-enter" type="button" aria-label="Unlock our private space">
-          <svg class="gate-enter__icon" viewBox="0 0 64 64" aria-hidden="true">
-            <path d="M32 56C12 44 6 28 16 20s18 5 16 8 8-12 16-8 4 24-16 36Z"></path>
+    <div class="gate-shell">
+      <section class="gate-visual" aria-label="Private archive">
+        <div class="gate-brand">
+          <svg class="logomark" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+            <path d="M32 56C12 44 6 28 16 20s18 5 16 8 8-12 16-8 4 24-16 36Z" fill="#fdfffc"/>
           </svg>
-          <span class="gate-enter__text">Unlock our space</span>
-        </button>
+          <h2>Sophie &amp; Carlos</h2>
+          <p>A place to save our memories.</p>
+        </div>
+      </section>
+      <div class="gate-card">
+        <span class="gate-kicker">Private archive</span>
+        <h2>Our album</h2>
+        <p>You know the secret key, my love 😉</p>
+        <input id="pass" type="password" placeholder="Enter our shared key" aria-label="Password"/>
+        <div class="gate-actions">
+          <button id="enter" class="gate-enter" type="button" aria-label="Unlock our private space">
+            <span class="gate-enter__text">Unlock our space</span>
+          </button>
+        </div>
+        <p id="msg" class="gate-msg" role="status" aria-live="polite"></p>
       </div>
-      <p id="msg" class="gate-msg" role="status" aria-live="polite"></p>
     </div>
   </div>
 
@@ -38,7 +44,7 @@
       <div class="brand">
         <div class="logo" aria-hidden="true">
           <svg class="logomark" viewBox="0 0 64 64" fill="none" role="img" aria-label="Heart">
-            <path d="M32 56C12 44 6 28 16 20s18 5 16 8 8-12 16-8 4 24-16 36Z" fill="#FF7DA3"/>
+            <path d="M32 56C12 44 6 28 16 20s18 5 16 8 8-12 16-8 4 24-16 36Z" fill="#800e13"/>
           </svg>
         </div>
         <div>
@@ -46,45 +52,84 @@
         </div>
       </div>
       <div class="head-right">
-        <span class="chip" id="countChip">0 memories</span>
-      </div>
-    </header>
-
-    <section class="hero" id="hero">
-      <svg class="star" viewBox="0 0 100 100" aria-hidden="true">
-        <path d="M50 5 61 37l33 2-26 19 10 32-28-17-28 17 10-32-26-19 33-2 11-32Z" fill="#FFDDE8"/>
-      </svg>
-      <h2>Our album lives here</h2>
-      <p>Some of our memories in this cozy place</p>
-      <div class="tools">
-        <div class="search">
-          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <button class="icon-action" type="button" id="searchToggle" aria-label="Search archive" aria-expanded="false" aria-controls="searchPanel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="11" cy="11" r="8"/>
             <path d="m21 21-3.5-3.5"/>
           </svg>
-          <input id="q" type="search" placeholder="Search by title, tag, or words inside..." autocomplete="off" aria-label="Search" />
+        </button>
+        <button class="icon-action" type="button" id="filterToggle" aria-label="Filter archive" aria-expanded="false" aria-controls="filterPanel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 5h18"/>
+            <path d="M6 12h12"/>
+            <path d="M10 19h4"/>
+          </svg>
+        </button>
+        <div class="tool-popover tool-popover--search" id="searchPanel" hidden>
+          <label class="search">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-3.5-3.5"/>
+            </svg>
+            <input id="q" type="search" placeholder="Search memories..." autocomplete="off" aria-label="Search" />
+          </label>
         </div>
-        <div class="filters" role="group" aria-label="Filters">
-          <button class="filter" data-type="all" aria-pressed="true">All</button>
-          <button class="filter" data-type="text">Letters</button>
-          <button class="filter" data-type="image">Images</button>
-          <button class="filter" data-type="audio">Audio</button>
-          <button class="filter" data-type="video">Videos</button>
+        <div class="tool-popover tool-popover--filters" id="filterPanel" hidden>
+          <div class="filters" role="group" aria-label="Filters">
+            <button class="filter" data-type="all" aria-pressed="true">All</button>
+            <button class="filter" data-type="text">Letters</button>
+            <button class="filter" data-type="image">Images</button>
+            <button class="filter" data-type="audio">Audio</button>
+            <button class="filter" data-type="video">Videos</button>
+          </div>
         </div>
-        <div class="tool-actions">
-          <button id="randomBtn" class="btn btn-ghost" type="button">Surprise us</button>
-        </div>
+      </div>
+    </header>
+
+    <section class="hero" id="hero" aria-label="Welcome carousel">
+      <div class="hero-carousel" id="heroCarousel" tabindex="0">
+        <article class="hero-slide is-active" style="--hero-image:url('fondo_welcome_to_our_album.png')" data-hero-slide>
+          <div class="hero-copy">
+            <h2>Welcome to our album, my love!</h2>
+          </div>
+        </article>
+        <article class="hero-slide" style="--hero-image:url('fondo_como_cajon_que_no_cierra.png')" data-hero-slide>
+          <div class="hero-copy">
+            <h2>Como cajón que no cierra... 😏</h2>
+          </div>
+        </article>
+        <article class="hero-slide" style="--hero-image:url('https://res.cloudinary.com/dul66qlpq/image/upload/v1767224560/2026_nl0suo.png')" data-hero-slide>
+          <div class="hero-copy">
+            <h2>Together forever!</h2>
+          </div>
+        </article>
+        <article class="hero-slide" data-hero-slide>
+          <div class="hero-copy">
+            <h2>😘🫂❤️♾️</h2>
+            <button class="hero-enter" type="button" data-hero-enter aria-label="Go to letters">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 5v14"/>
+                <path d="m19 12-7 7-7-7"/>
+              </svg>
+            </button>
+          </div>
+        </article>
+      </div>
+      <div class="hero-progress" aria-label="Hero progress" role="img">
+        <svg viewBox="0 0 64 58" aria-hidden="true">
+          <path class="hero-progress__base" pathLength="100" d="M32 54C12 42 6 27 15 18c7-7 15-2 17 5 2-7 10-12 17-5 9 9 3 24-17 36Z"/>
+          <path class="hero-progress__segment" pathLength="100" data-progress-segment style="--segment-offset:0" d="M32 54C12 42 6 27 15 18c7-7 15-2 17 5 2-7 10-12 17-5 9 9 3 24-17 36Z"/>
+          <path class="hero-progress__segment" pathLength="100" data-progress-segment style="--segment-offset:-25" d="M32 54C12 42 6 27 15 18c7-7 15-2 17 5 2-7 10-12 17-5 9 9 3 24-17 36Z"/>
+          <path class="hero-progress__segment" pathLength="100" data-progress-segment style="--segment-offset:-50" d="M32 54C12 42 6 27 15 18c7-7 15-2 17 5 2-7 10-12 17-5 9 9 3 24-17 36Z"/>
+          <path class="hero-progress__segment" pathLength="100" data-progress-segment style="--segment-offset:-75" d="M32 54C12 42 6 27 15 18c7-7 15-2 17 5 2-7 10-12 17-5 9 9 3 24-17 36Z"/>
+        </svg>
       </div>
     </section>
 
-    <section class="message-block">
-      <h2 class="message-title">Our story keeps growing</h2>
-      <p class="message-text">One day we will show these memories to our kids &#10084;&#65039;</p>
-    </section>
-
-    <main style="margin-top:18px">
+    <main id="archiveMain">
       <div id="grid" class="grid" aria-live="polite"></div>
     </main>
+    <main id="articleMain" class="article-main" hidden></main>
   </div>
 
   <div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -98,6 +143,28 @@
       </div>
       <div class="modal-body" id="modalBody"></div>
       <div class="modal-foot" id="modalFoot"></div>
+    </div>
+  </div>
+  <div id="birthdayPopup" class="birthday-popup" role="dialog" aria-modal="true" aria-labelledby="birthdayTitle" hidden>
+    <div class="birthday-card">
+      <div class="birthday-confetti" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <button id="birthdayClose" class="birthday-close" type="button" aria-label="Close birthday message">&times;</button>
+      <div class="birthday-scene" aria-hidden="true">
+        <span class="birthday-balloon birthday-balloon--wine"></span>
+        <span class="birthday-balloon birthday-balloon--lilac"></span>
+        <span class="birthday-balloon birthday-balloon--gold"></span>
+        <div class="birthday-cake">
+          <span class="birthday-candle"></span>
+          <span class="birthday-flame"></span>
+        </div>
+      </div>
+      <p class="birthday-kicker">May 18</p>
+      <h2 id="birthdayTitle">Happy Birthday my love</h2>
+      <p class="birthday-copy">I send you a hug in this special place.</p>
+      <button id="birthdayContinue" class="birthday-continue" type="button">Open our album</button>
     </div>
   </div>
   <div id="mini" class="mini mini--hidden" aria-live="polite">
