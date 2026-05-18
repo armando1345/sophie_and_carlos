@@ -168,6 +168,15 @@ That will be enough.
     caption: "Maybe this year we will be like in that image"
   },
   {
+    id: "video_kissing_birthday",
+    type: "video",
+    title: "Kissing on your birthday!",
+    date: "2026-05-18",
+    src: "https://res.cloudinary.com/dul66qlpq/video/upload/v1779137259/a_kiss_cz8ol1.mp4",
+    cover: "https://res.cloudinary.com/dul66qlpq/video/upload/f_jpg,so_0/v1779137259/a_kiss_cz8ol1.jpg",
+    caption: "Kissing on your birthday!"
+  },
+  {
     id: "video_sophie_carlos_2026",
     type: "video",
     title: "This wasnt my best animation",
