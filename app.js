@@ -1424,8 +1424,10 @@ const birthdayPopup = $("#birthdayPopup");
 const birthdayClose = $("#birthdayClose");
 const birthdayContinue = $("#birthdayContinue");
 let birthdayLastFocusedElement = null;
+const BIRTHDAY_POPUP_ALWAYS_VISIBLE = true;
 
 function isBirthdayToday(date = new Date()) {
+  if (BIRTHDAY_POPUP_ALWAYS_VISIBLE) return true;
   return date.getMonth() === 4 && date.getDate() === 18;
 }
 
